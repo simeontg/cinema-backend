@@ -4,6 +4,7 @@ import { LoggerModule } from '@app/common';
 import { Movie } from './entities/movie.entity';
 import { MoviesController } from './movies.controller';
 import { MoviesService } from './movies.service';
+import { MoviesRepository } from './movies.repository';
 
 @Module({
   imports: [
@@ -12,6 +13,6 @@ import { MoviesService } from './movies.service';
     LoggerModule
   ],
   controllers: [MoviesController],
-  providers: [MoviesService],
+  providers: [MoviesService, MoviesRepository],
 })
 export class MoviesModule {}

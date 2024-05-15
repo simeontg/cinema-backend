@@ -17,6 +17,11 @@ export class MoviesController {
     return this.moviesService.findAll();
   }
 
+  @Get('trending')
+  findTrending() {
+    return this.moviesService.find({ trending: true });
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.moviesService.findOne(+id);

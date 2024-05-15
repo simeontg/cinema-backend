@@ -1,26 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
+import { MoviesRepository } from './movies.repository';
+import { Movie } from './entities/movie.entity';
+import { FindOptionsWhere } from 'typeorm';
 
 @Injectable()
 export class MoviesService {
+
+  constructor(
+    private readonly moviesRepository: MoviesRepository
+  ) {}
+
   create(createMovieDto: CreateMovieDto) {
-    return 'This action adds a new movie';
+    const movie = new Movie({...createMovieDto, createdAt: new Date(), updatedAt: new Date()});
+    return this.moviesRepository.create(movie);
   }
 
   findAll() {
-    return `This action returns all movies`;
+    return this.moviesRepository.find({});
+  }
+
+  find(where: FindOptionsWhere<Movie>) {
+    return this.moviesRepository.find(where)
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} movie`;
+    return this.moviesRepository.findOne({ id });
   }
 
   update(id: number, updateMovieDto: UpdateMovieDto) {
-    return `This action updates a #${id} movie`;
+    return this.moviesRepository.findOneAndUpdate({ id }, updateMovieDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} movie`;
+    return this.moviesRepository.findOneAndDelete({ id });
   }
 }
