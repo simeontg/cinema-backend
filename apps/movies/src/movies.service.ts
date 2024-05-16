@@ -7,13 +7,12 @@ import { FindOptionsWhere } from 'typeorm';
 
 @Injectable()
 export class MoviesService {
-
   constructor(
     private readonly moviesRepository: MoviesRepository
   ) {}
 
   create(createMovieDto: CreateMovieDto) {
-    const movie = new Movie({...createMovieDto, createdAt: new Date(), updatedAt: new Date()});
+    const movie = new Movie(createMovieDto);
     return this.moviesRepository.create(movie);
   }
 
@@ -21,7 +20,7 @@ export class MoviesService {
     return this.moviesRepository.find({});
   }
 
-  find(where: FindOptionsWhere<Movie>) {
+  find(where: FindOptionsWhere<Movie>): Promise<Movie[]> {
     return this.moviesRepository.find(where)
   }
 

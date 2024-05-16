@@ -1,7 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
+import { plainToInstance } from 'class-transformer';
+import { TrendedMovieResponseDto } from './dto/trended-movie-response.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -17,23 +18,14 @@ export class MoviesController {
     return this.moviesService.findAll();
   }
 
-  @Get('trending')
-  findTrending() {
-    return this.moviesService.find({ trending: true });
+  @Get('trended')
+  async getTrendedMovies(): Promise<TrendedMovieResponseDto[]> {
+    const movies = await this.moviesService.find({ trended: true });
+    return plainToInstance(TrendedMovieResponseDto, movies);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.moviesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMovieDto: UpdateMovieDto) {
-    return this.moviesService.update(+id, updateMovieDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.moviesService.remove(+id);
   }
 }

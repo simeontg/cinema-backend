@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateMovieDto {
     @IsString()
@@ -11,6 +11,7 @@ export class CreateMovieDto {
     description: string;
 
     @IsNumber()
+    @IsNotEmpty()
     duration: number;
 
     @IsString()
@@ -22,9 +23,11 @@ export class CreateMovieDto {
     genre: string;
 
     @IsDate()
+    @IsNotEmpty()
     @Type(() => Date)
     releaseDate: Date
     
     @IsBoolean()
-    trending: boolean
+    @IsOptional()
+    trended?: boolean
 }

@@ -1,7 +1,9 @@
 import { AbstractEntity } from '@app/common';
 import { Column, Entity } from 'typeorm';
 
-@Entity()
+@Entity({
+    name: 'movies'
+})
 export class Movie extends AbstractEntity<Movie> {
     @Column()
     title: string;
@@ -21,12 +23,8 @@ export class Movie extends AbstractEntity<Movie> {
     @Column()
     releaseDate: Date;
 
-    @Column()
-    trending: boolean;
-
-    @Column()
-    createdAt: Date;
-
-    @Column()
-    updatedAt: Date;
+    @Column({
+        default: false
+    })
+    trended: boolean;
 }
