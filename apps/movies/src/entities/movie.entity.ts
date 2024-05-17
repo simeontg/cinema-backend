@@ -1,5 +1,30 @@
 import { AbstractEntity } from '@app/common';
-import { Entity } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
-@Entity()
-export class Movie extends AbstractEntity<Movie> {}
+@Entity({
+    name: 'movies'
+})
+export class Movie extends AbstractEntity<Movie> {
+    @Column()
+    title: string;
+
+    @Column()
+    description: string;
+
+    @Column()
+    duration: number;
+
+    @Column()
+    imageUrl: string;
+
+    @Column()
+    genre: string;
+
+    @Column()
+    releaseDate: Date;
+
+    @Column({
+        default: false
+    })
+    trended: boolean;
+}
