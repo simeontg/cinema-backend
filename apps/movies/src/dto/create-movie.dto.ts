@@ -12,11 +12,10 @@ export class CreateMovieDto {
 
     @IsNumber()
     @IsNotEmpty()
+    @Type(() => Number)
     duration: number;
 
-    @IsString()
-    @IsNotEmpty()
-    imageUrl: string;
+    image: File;
 
     @IsString()
     @IsNotEmpty()

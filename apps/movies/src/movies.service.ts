@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { MoviesRepository } from './movies.repository';
 import { Movie } from './entities/movie.entity';
 import { FindOptionsWhere } from 'typeorm';
+import { MovieDetails } from './types/movie';
 
 @Injectable()
 export class MoviesService {
@@ -11,8 +11,8 @@ export class MoviesService {
     private readonly moviesRepository: MoviesRepository
   ) {}
 
-  create(createMovieDto: CreateMovieDto) {
-    const movie = new Movie(createMovieDto);
+  create(movieData: MovieDetails) {
+    const movie = new Movie(movieData);
     return this.moviesRepository.create(movie);
   }
 
