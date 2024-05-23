@@ -25,7 +25,7 @@ export class UploaderService {
       }),
     );
 
-    const fileUrl = `https://${this.configService.get('AWS_BUCKET')}.s3.eu-central-1.amazonaws.com/${fileName}`;
+    const fileUrl = `https://${this.configService.get('AWS_BUCKET')}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${fileName}`;
     return fileUrl;
   }
 }

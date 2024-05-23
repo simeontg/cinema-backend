@@ -11,7 +11,7 @@ export class MoviesService {
     private readonly moviesRepository: MoviesRepository
   ) {}
 
-  create(movieData: MovieDetails) {
+  create(movieData: MovieDetails): Promise<Movie> {
     const movie = new Movie(movieData);
     return this.moviesRepository.create(movie);
   }
@@ -24,15 +24,15 @@ export class MoviesService {
     return this.moviesRepository.find(where)
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.moviesRepository.findOne({ id });
   }
 
-  update(id: number, updateMovieDto: UpdateMovieDto) {
+  update(id: string, updateMovieDto: UpdateMovieDto) {
     return this.moviesRepository.findOneAndUpdate({ id }, updateMovieDto);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.moviesRepository.findOneAndDelete({ id });
   }
 }

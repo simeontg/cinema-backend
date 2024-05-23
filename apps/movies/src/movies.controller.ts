@@ -5,6 +5,7 @@ import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { plainToInstance } from 'class-transformer';
 import { TrendedMovieResponseDto } from './dto/trended-movie-response.dto';
+import { MovieResponseDto } from './dto/movie-response.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -12,18 +13,18 @@ export class MoviesController {
 
   @Post()
   @UseInterceptors(FileInterceptor('image'))
-  async create(@Body() createMovieDto: CreateMovieDto, @UploadedFile() image: Express.Multer.File) {
+  async create(@Body() createMovieDto: CreateMovieDto, @UploadedFile() image: Express.Multer.File): Promise<MovieResponseDto> {
     const imageUrl = await this.uploaderService.upload(image.originalname, image.buffer);
-    const movie = {
+    const movie = await this.moviesService.create({
       title: createMovieDto.title,
       description: createMovieDto.description,
       genre: createMovieDto.genre,
       duration: +createMovieDto.duration,
       releaseDate: createMovieDto.releaseDate,
       trended: createMovieDto.trended,
-      imageUrl,    
-    }
-    return this.moviesService.create(movie);
+      imageUrl,   
+    });
+    return plainToInstance(MovieResponseDto, movie);
   }
 
   @Get()
@@ -39,6 +40,6 @@ export class MoviesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.moviesService.findOne(+id);
+    return this.moviesService.findOne(id);
   }
 }

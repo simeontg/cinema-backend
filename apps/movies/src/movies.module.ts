@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '@app/common';
 import { LoggerModule } from '@app/common';
-import { UploaderService } from '@app/common/uploader/uploader.service';
 import { UploaderModule } from '@app/common/uploader/uploader.module';
 import { Movie } from './entities/movie.entity';
 import { MoviesController } from './movies.controller';
@@ -16,6 +15,6 @@ import { MoviesRepository } from './movies.repository';
     UploaderModule,
   ],
   controllers: [MoviesController],
-  providers: [MoviesService, MoviesRepository, UploaderService],
+  providers: [MoviesService, MoviesRepository],
 })
 export class MoviesModule {}
