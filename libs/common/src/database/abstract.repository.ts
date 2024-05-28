@@ -3,6 +3,7 @@ import { EntityManager, FindOptionsWhere, Repository } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 
 import { AbstractEntity } from "./abstract.entity";
+import { IPaginationOptions, Pagination, paginate } from "nestjs-typeorm-paginate";
 
 export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     protected abstract readonly logger: Logger;
@@ -44,5 +45,9 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
 
     async findOneAndDelete(where: FindOptionsWhere<T>) {
         await this.entityRepository.delete(where);
+    }
+
+    async paginate(options: IPaginationOptions): Promise<Pagination<T>> {
+        return paginate<T>(this.entityRepository, options);
     }
 }

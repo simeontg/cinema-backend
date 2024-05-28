@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseInterceptors, UploadedFile, ParseIntPipe, DefaultValuePipe, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploaderService } from '@app/common/uploader/uploader.service';
 import { MoviesService } from './movies.service';
@@ -6,6 +6,9 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { plainToInstance } from 'class-transformer';
 import { TrendedMovieResponseDto } from './dto/trended-movie-response.dto';
 import { MovieResponseDto } from './dto/movie-response.dto';
+import { PaginationResponseDto } from './dto/pagination-response.dto';
+import { PaginationMetaDto } from './dto/pagination-meta.dto';
+import { PaginationLinksDto } from './dto/pagination-links.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -28,8 +31,25 @@ export class MoviesController {
   }
 
   @Get()
-  findAll() {
-    return this.moviesService.findAll();
+  async getPaginatedMovies(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit = 20
+  ): Promise<PaginationResponseDto<MovieResponseDto[]>> {
+    limit = limit > 100 ? 100 : limit;
+
+    const result = await this.moviesService.findAll({
+      page,
+      limit,
+      route: 'http://localhost:3001/movies',
+    });
+
+    const response = {
+      links: plainToInstance(PaginationLinksDto, result.links), 
+      items: plainToInstance(MovieResponseDto, result.items), 
+      meta: plainToInstance(PaginationMetaDto, result.meta)
+    };
+
+    return plainToInstance(PaginationResponseDto<MovieResponseDto[]>, response);
   }
 
   @Get('trended')
