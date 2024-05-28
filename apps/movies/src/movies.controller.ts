@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploaderService } from '@app/common/uploader/uploader.service';
 import { MoviesService } from './movies.service';
@@ -6,6 +6,8 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { plainToInstance } from 'class-transformer';
 import { TrendedMovieResponseDto } from './dto/trended-movie-response.dto';
 import { MovieResponseDto } from './dto/movie-response.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { PaginationResponseDto } from './dto/pagination-response.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -28,8 +30,10 @@ export class MoviesController {
   }
 
   @Get()
-  findAll() {
-    return this.moviesService.findAll();
+  async getPaginatedMovies(@Query() { offset, limit }: PaginationDto): Promise<PaginationResponseDto<MovieResponseDto>> {
+    const [movies, totalCount] = await this.moviesService.findAndCount({skip: offset, take: limit});
+    const moviesResponse = plainToInstance(MovieResponseDto, movies);
+    return plainToInstance(PaginationResponseDto<MovieResponseDto>, { data: moviesResponse, totalCount, offset, limit });
   }
 
   @Get('trended')

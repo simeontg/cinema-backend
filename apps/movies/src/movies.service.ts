@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { MoviesRepository } from './movies.repository';
 import { Movie } from './entities/movie.entity';
-import { FindOptionsWhere } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere } from 'typeorm';
 import { MovieDetails } from './types/movie';
 
 @Injectable()
@@ -16,12 +16,16 @@ export class MoviesService {
     return this.moviesRepository.create(movie);
   }
 
-  findAll() {
-    return this.moviesRepository.find({});
+  findAll(options: FindManyOptions) {
+    return this.moviesRepository.find(options);
+  }
+
+  findAndCount(options: FindManyOptions) {
+    return this.moviesRepository.findAndCount(options);
   }
 
   find(where: FindOptionsWhere<Movie>): Promise<Movie[]> {
-    return this.moviesRepository.find(where)
+    return this.moviesRepository.findBy(where);
   }
 
   findOne(id: string) {
