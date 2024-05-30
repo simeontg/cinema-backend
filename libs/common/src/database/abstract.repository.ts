@@ -1,9 +1,10 @@
 import { Logger, NotFoundException } from "@nestjs/common";
-import { EntityManager, FindOptionsWhere, Repository } from "typeorm";
+import { EntityManager, FindManyOptions, FindOptionsWhere, Repository } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 
 import { AbstractEntity } from "./abstract.entity";
-import { IPaginationOptions, Pagination, paginate } from "nestjs-typeorm-paginate";
+import { paginate } from "nestjs-typeorm-paginate";
+import { PaginationOptions, Pagination } from "../pagination";
 
 export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     protected abstract readonly logger: Logger;
@@ -47,7 +48,7 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
         await this.entityRepository.delete(where);
     }
 
-    async paginate(options: IPaginationOptions): Promise<Pagination<T>> {
-        return paginate<T>(this.entityRepository, options);
+    async paginate(options: PaginationOptions, searchOptions?: FindOptionsWhere<T> | FindManyOptions<T>): Promise<Pagination<T>> {
+        return paginate<T>(this.entityRepository, options, searchOptions);
     }
 }

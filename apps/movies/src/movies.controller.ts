@@ -1,18 +1,21 @@
-import { Controller, Get, Post, Body, Param, UseInterceptors, UploadedFile, ParseIntPipe, DefaultValuePipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseInterceptors, UploadedFile, Query, Req } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploaderService } from '@app/common/uploader/uploader.service';
+import { Pagination } from '@app/common/pagination';
+import { BaseController } from '@app/common/base/base.controller';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { plainToInstance } from 'class-transformer';
 import { TrendedMovieResponseDto } from './dto/trended-movie-response.dto';
 import { MovieResponseDto } from './dto/movie-response.dto';
-import { PaginationResponseDto } from './dto/pagination-response.dto';
-import { PaginationMetaDto } from './dto/pagination-meta.dto';
-import { PaginationLinksDto } from './dto/pagination-links.dto';
+import { GetPaginatedMoviesQueryParamsDto } from './dto/query-params.dto';
+import { Request } from 'express';
 
 @Controller('movies')
-export class MoviesController {
-  constructor(private readonly moviesService: MoviesService, private readonly uploaderService: UploaderService) {}
+export class MoviesController extends BaseController {
+  constructor(private readonly moviesService: MoviesService, private readonly uploaderService: UploaderService) {
+    super()
+  }
 
   @Post()
   @UseInterceptors(FileInterceptor('image'))
@@ -32,24 +35,23 @@ export class MoviesController {
 
   @Get()
   async getPaginatedMovies(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
-    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit = 20
-  ): Promise<PaginationResponseDto<MovieResponseDto[]>> {
-    limit = limit > 100 ? 100 : limit;
+    @Query() { page, limit }: GetPaginatedMoviesQueryParamsDto,
+    @Req() request: Request
+  ): Promise<Pagination<MovieResponseDto>> {
+    const url = this.getUrl(request);
 
-    const result = await this.moviesService.findAll({
+    const result = await this.moviesService.findAllPaginated({
       page,
       limit,
-      route: 'http://localhost:3001/movies',
+      route: url,
     });
 
-    const response = {
-      links: plainToInstance(PaginationLinksDto, result.links), 
-      items: plainToInstance(MovieResponseDto, result.items), 
-      meta: plainToInstance(PaginationMetaDto, result.meta)
+    const mappedResponse: Pagination<MovieResponseDto> = {
+      ...result,
+      items: plainToInstance(MovieResponseDto, result.items)
     };
 
-    return plainToInstance(PaginationResponseDto<MovieResponseDto[]>, response);
+    return mappedResponse;
   }
 
   @Get('trended')
