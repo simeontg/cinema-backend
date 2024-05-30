@@ -11,6 +11,8 @@ services:
       dockerfile: ./apps/movies/Dockerfile
       target: development
     command: npm run start:dev movies
+    environment:
+      - WATCHPACK_POLLING=true
     env_file:
       - .env
     ports:

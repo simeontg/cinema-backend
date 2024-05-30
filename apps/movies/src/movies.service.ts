@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { MoviesRepository } from './movies.repository';
 import { Movie } from './entities/movie.entity';
-import { FindOptionsWhere } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere } from 'typeorm';
 import { MovieDetails } from './types/movie';
+import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class MoviesService {
@@ -16,8 +17,8 @@ export class MoviesService {
     return this.moviesRepository.create(movie);
   }
 
-  findAll() {
-    return this.moviesRepository.find({});
+  findAllPaginated(options: IPaginationOptions, searchOptions?: FindOptionsWhere<Movie> | FindManyOptions<Movie>): Promise<Pagination<Movie>> {
+    return this.moviesRepository.paginate(options, searchOptions);
   }
 
   find(where: FindOptionsWhere<Movie>): Promise<Movie[]> {

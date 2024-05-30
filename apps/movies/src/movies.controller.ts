@@ -1,15 +1,21 @@
-import { Controller, Get, Post, Body, Param, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseInterceptors, UploadedFile, Query, Req } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploaderService } from '@app/common/uploader/uploader.service';
+import { Pagination } from '@app/common/pagination';
+import { BaseController } from '@app/common/base/base.controller';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { plainToInstance } from 'class-transformer';
 import { TrendedMovieResponseDto } from './dto/trended-movie-response.dto';
 import { MovieResponseDto } from './dto/movie-response.dto';
+import { GetPaginatedMoviesQueryParamsDto } from './dto/query-params.dto';
+import { Request } from 'express';
 
 @Controller('movies')
-export class MoviesController {
-  constructor(private readonly moviesService: MoviesService, private readonly uploaderService: UploaderService) {}
+export class MoviesController extends BaseController {
+  constructor(private readonly moviesService: MoviesService, private readonly uploaderService: UploaderService) {
+    super()
+  }
 
   @Post()
   @UseInterceptors(FileInterceptor('image'))
@@ -28,8 +34,24 @@ export class MoviesController {
   }
 
   @Get()
-  findAll() {
-    return this.moviesService.findAll();
+  async getPaginatedMovies(
+    @Query() { page, limit }: GetPaginatedMoviesQueryParamsDto,
+    @Req() request: Request
+  ): Promise<Pagination<MovieResponseDto>> {
+    const url = this.getUrl(request);
+
+    const result = await this.moviesService.findAllPaginated({
+      page,
+      limit,
+      route: url,
+    });
+
+    const mappedResponse: Pagination<MovieResponseDto> = {
+      ...result,
+      items: plainToInstance(MovieResponseDto, result.items)
+    };
+
+    return mappedResponse;
   }
 
   @Get('trended')
