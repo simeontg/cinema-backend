@@ -1,9 +1,9 @@
 import { FindOptionsWhere, LessThanOrEqual, MoreThan, W } from 'typeorm';
-import { GetPaginatedMoviesQueryParamsDto } from '../dto/query-params.dto';
 import { Movie } from '../entities/movie.entity';
+import { MovieSearchParams } from '../types/movie';
 
 export const generateWhere = (
-  params: GetPaginatedMoviesQueryParamsDto
+  params: MovieSearchParams
 ): FindOptionsWhere<Movie> => {
   const where: FindOptionsWhere<Movie> = {};
   const currentDate = new Date();

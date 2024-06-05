@@ -7,3 +7,9 @@ export interface MovieDetails {
     imageUrl: string;
     trended?: boolean;
 }
+
+export interface MovieSearchParams {
+    releaseType: 'current' | 'upcoming';
+    title: string;
+    genre: string;
+}
