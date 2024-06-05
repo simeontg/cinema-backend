@@ -10,6 +10,9 @@ import { TrendedMovieResponseDto } from './dto/trended-movie-response.dto';
 import { MovieResponseDto } from './dto/movie-response.dto';
 import { GetPaginatedMoviesQueryParamsDto } from './dto/query-params.dto';
 import { Request } from 'express';
+import { FindManyOptions, FindOptions, FindOptionsWhere, LessThanOrEqual, MoreThan } from 'typeorm';
+import { Movie } from './entities/movie.entity';
+import { generateWhere } from './utils/generateWhere';
 
 @Controller('movies')
 export class MoviesController extends BaseController {
@@ -35,7 +38,7 @@ export class MoviesController extends BaseController {
 
   @Get()
   async getPaginatedMovies(
-    @Query() { page, limit }: GetPaginatedMoviesQueryParamsDto,
+    @Query() { page, limit, releaseType, title, genre }: GetPaginatedMoviesQueryParamsDto,
     @Req() request: Request
   ): Promise<Pagination<MovieResponseDto>> {
     const url = this.getUrl(request);
@@ -44,7 +47,7 @@ export class MoviesController extends BaseController {
       page,
       limit,
       route: url,
-    });
+    }, { page, limit, releaseType, title, genre });
 
     const mappedResponse: Pagination<MovieResponseDto> = {
       ...result,

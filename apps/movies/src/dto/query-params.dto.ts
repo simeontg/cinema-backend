@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, Min, Max } from 'class-validator';
+import { IsNumber, IsOptional, Min, Max, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class GetPaginatedMoviesQueryParamsDto {
@@ -17,4 +17,16 @@ export class GetPaginatedMoviesQueryParamsDto {
     @Max(100)
     @IsOptional()
     limit: number = 20;
+
+    @IsString()
+    @IsOptional()
+    releaseType: 'current' | 'upcoming';
+
+    @IsString()
+    @IsOptional()
+    title: string;
+
+    @IsString()
+    @IsOptional()
+    genre: string;
 }
