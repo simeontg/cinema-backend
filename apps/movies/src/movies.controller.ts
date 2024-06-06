@@ -35,7 +35,7 @@ export class MoviesController extends BaseController {
 
   @Get()
   async getPaginatedMovies(
-    @Query() { page, limit }: GetPaginatedMoviesQueryParamsDto,
+    @Query() { page, limit, releaseType, title, genre }: GetPaginatedMoviesQueryParamsDto,
     @Req() request: Request
   ): Promise<Pagination<MovieResponseDto>> {
     const url = this.getUrl(request);
@@ -44,7 +44,7 @@ export class MoviesController extends BaseController {
       page,
       limit,
       route: url,
-    });
+    }, { releaseType, title, genre });
 
     const mappedResponse: Pagination<MovieResponseDto> = {
       ...result,
