@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '@app/common';
-import { LoggerModule } from '@app/common';
-import { UploaderModule } from '@app/common/uploader/uploader.module';
+import { DatabaseModule, HealthModule, UploaderModule, LoggerModule } from '@app/common';
+
 import { Movie } from './entities/movie.entity';
 import { MoviesController } from './movies.controller';
 import { MoviesService } from './movies.service';
@@ -13,6 +12,7 @@ import { MoviesRepository } from './movies.repository';
     DatabaseModule.forFeature([Movie]),
     LoggerModule,
     UploaderModule,
+    HealthModule
   ],
   controllers: [MoviesController],
   providers: [MoviesService, MoviesRepository],

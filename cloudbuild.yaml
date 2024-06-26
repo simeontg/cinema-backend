@@ -1,0 +1,17 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+    [
+      'build',
+      '-t',
+      'europe-west3-docker.pkg.dev/cinema-426911/movies/production/production'
+      '-f',
+      'apps/movies/Dockerfile',
+      '.'
+    ]
+  - name: 'gcr.io/cloud-builder/docker',
+    args: 
+    [
+      'push',
+      'europe-west3-docker.pkg.dev/cinema-426911/movies/production/production'
+    ]
