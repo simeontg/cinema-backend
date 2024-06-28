@@ -16,8 +16,6 @@ import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-clas
                 password: configService.getOrThrow('POSTGRES_PASSWORD'),
                 entities: [],
                 autoLoadEntities: true,
-                sslmode: 'require',
-                ssl: true
             }),
             inject: [ConfigService]
         })
