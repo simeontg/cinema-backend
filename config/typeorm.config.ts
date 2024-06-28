@@ -8,8 +8,8 @@ const migrationsTableName = process.env.MIGRATIONS_TYPE === 'seed' ? 'seeds' : '
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  host: 'localhost',
-  port: 5131,
+  host: process.env.MIGRATIONS_HOST,
+  port: +process.env.MIGRATIONS_PORT,
   username: process.env.POSTGRES_USERNAME,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
