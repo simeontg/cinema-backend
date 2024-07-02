@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/createUserDto';
 import { UsersRepository } from './users.repository';
@@ -7,18 +7,17 @@ import { RolesService } from '../roles/roles.service';
 import { Profile } from '../profiles/entities/profile.entity';
 import { Roles } from '../roles/types/roles.enum';
 import { Transactional } from 'typeorm-transactional';
+import { GetUserDto } from './dto/getUserDto';
+import { plainToInstance } from 'class-transformer';
+import { UserResponseDto } from './dto/userResponseDto';
 
 @Injectable()
 export class UsersService {
     constructor(private readonly usersRepository: UsersRepository, private readonly rolesService: RolesService) {}
     
     @Transactional()
-    async create(createUserDto: CreateUserDto, profile: Profile) {
-        const isEmailTaken = await this.usersRepository.findOne({ email: createUserDto.email });
-
-        if (isEmailTaken) {
-            throw new UnauthorizedException('Email is already taken');
-        }
+    async create(createUserDto: CreateUserDto, profile: Profile): Promise<User> {
+        await this.validateCreateUserDto(createUserDto);
 
         const user = new User({
             email: createUserDto.email,
@@ -33,7 +32,17 @@ export class UsersService {
         return this.usersRepository.create(user);
     }
 
-    async verifyUser(email: string, password: string) {
+    private async validateCreateUserDto(createUserDto: CreateUserDto) {
+        try {
+            await this.usersRepository.findOne({ email: createUserDto.email});
+        } catch (err) {
+            return;
+        }
+
+        throw new UnprocessableEntityException('Email already exists');
+    }
+
+    async verifyUser(email: string, password: string): Promise<User> {
         const user = await this.usersRepository.findOne({ email });
         const passwordIsValid = await bcrypt.compare(password, user.password);
 
@@ -42,5 +51,21 @@ export class UsersService {
         }
 
         return user;
+    }
+
+    async getUser(getUserDto: GetUserDto): Promise<User> {
+        return this.usersRepository.findOne(getUserDto);
+    }
+
+    async transformUserToResponseUserDto(user: User) {
+        const { id, email, profile: { firstName, lastName }, role: { name: role } } = user;
+
+        return plainToInstance(UserResponseDto, {
+            id,
+            email,
+            firstName,
+            lastName,
+            role
+        });
     }
 }

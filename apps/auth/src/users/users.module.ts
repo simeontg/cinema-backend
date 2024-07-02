@@ -5,9 +5,11 @@ import { User } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { ProfilesModule } from '../profiles/profiles.module';
 import { RolesModule } from '../roles/roles.module';
+import { UsersController } from './users.controller';
 
 @Module({
     imports: [DatabaseModule, DatabaseModule.forFeature([User]), ProfilesModule, RolesModule],
+    controllers: [UsersController],
     providers: [UsersService, UsersRepository],
     exports: [UsersService]
 })

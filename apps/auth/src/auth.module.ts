@@ -5,10 +5,31 @@ import { UsersModule } from './users/users.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { HealthModule, LoggerModule } from '@app/common';
 import { RolesModule } from './roles/roles.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { LocalStrategy } from './strategies/local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
-  imports: [UsersModule, ProfilesModule, LoggerModule, HealthModule, RolesModule],
-  controllers: [AuthController],
-  providers: [AuthService],
+    imports: [
+        UsersModule,
+        ProfilesModule,
+        LoggerModule,
+        HealthModule,
+        RolesModule,
+        ConfigModule,
+        JwtModule.registerAsync({
+            imports: [ConfigModule.forRoot()],
+            useFactory: (configService: ConfigService) => ({
+                secret: configService.get('JWT_SECRET'),
+                signOptions: {
+                    expiresIn: `${configService.get('JWT_EXPIRATION')}s`
+                }
+            }),
+            inject: [ConfigService]
+        })
+    ],
+    controllers: [AuthController],
+    providers: [AuthService, LocalStrategy, JwtStrategy]
 })
 export class AuthModule {}
