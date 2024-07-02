@@ -4,7 +4,7 @@ services:
     env_file:
       - .env
     ports:
-      - 5131:5432
+      - 5555:5432
   movies:
     build:
       context: .

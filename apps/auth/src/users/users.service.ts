@@ -5,10 +5,14 @@ import { UsersRepository } from './users.repository';
 import { User } from './entities/user.entity';
 import { RolesService } from '../roles/roles.service';
 import { Profile } from '../profiles/entities/profile.entity';
+import { Roles } from '../roles/types/roles.enum';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class UsersService {
     constructor(private readonly usersRepository: UsersRepository, private readonly rolesService: RolesService) {}
+    
+    @Transactional()
     async create(createUserDto: CreateUserDto, profile: Profile) {
         const isEmailTaken = await this.usersRepository.findOne({ email: createUserDto.email });
 
@@ -21,7 +25,7 @@ export class UsersService {
             password: await bcrypt.hash(createUserDto.password, 10)
         });
 
-        const userRole = await this.rolesService.findOne({name: 'USER'})
+        const userRole = await this.rolesService.findOne({name: Roles.User})
 
         user.role = userRole;
         user.profile = profile;

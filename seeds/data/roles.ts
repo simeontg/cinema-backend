@@ -1,8 +1,11 @@
+import { Roles } from "apps/auth/src/roles/types/roles.enum";
+
 export const roles = [
     {
-        name: 'ADMIN'
+        name: Roles.Admin
     },
     {
-        name: 'USER'
+        name: Roles.User
     }
 ];
+
