@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
+import { DataSource } from 'typeorm';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 @Module({
     imports: [
@@ -16,9 +18,14 @@ import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-clas
                 password: configService.getOrThrow('POSTGRES_PASSWORD'),
                 entities: [],
                 autoLoadEntities: true,
-                sslmode: 'require',
-                ssl: true
             }),
+            dataSourceFactory: async (options) => {
+                if (!options) {
+                    throw new Error('Invalid options passed');
+                  }
+       
+                  return addTransactionalDataSource(new DataSource(options));
+            },
             inject: [ConfigService]
         })
     ]
