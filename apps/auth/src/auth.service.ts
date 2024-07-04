@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from './users/users.service';
 import { Profile } from './profiles/entities/profile.entity';
-import { CreateUserDto } from './users/dto/createUserDto';
-import { CreateProfileDto } from './profiles/dto/createProfileDto';
+import { CreateUserDto } from './users/dto/create-user.dto';
+import { CreateProfileDto } from './profiles/dto/create-profile.dto';
 import { User } from './users/entities/user.entity';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
