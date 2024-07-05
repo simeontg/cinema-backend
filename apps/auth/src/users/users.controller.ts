@@ -3,16 +3,15 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { UserResponseDto } from './dto/user-response.dto';
-import { UsersService } from './users.service';
-import { transformUserToResponseUserDto } from './users.mapper';
+import { UsersMapper } from './users.mapper';
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersMapper: UsersMapper) {}
 
     @Get()
     @UseGuards(JwtAuthGuard)
     async getUser(@CurrentUser() user: User): Promise<UserResponseDto> {
-        return transformUserToResponseUserDto(user);
+        return this.usersMapper.transformUserToResponseUserDto(user);
     }
 }

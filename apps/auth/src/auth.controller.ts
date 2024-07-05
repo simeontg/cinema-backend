@@ -5,14 +5,13 @@ import { Response } from 'express';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './users/entities/user.entity';
-import { UsersService } from './users/users.service';
-import { transformUserToResponseUserDto } from './users/users.mapper';
+import { UsersMapper } from './users/users.mapper';
 
 @Controller('auth')
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
-        private readonly usersService: UsersService
+        private readonly usersMapper: UsersMapper
     ) {}
 
     @Post('register')
@@ -31,7 +30,7 @@ export class AuthController {
     @Post('login')
     async login(@CurrentUser() user: User, @Res({ passthrough: true }) response: Response) {
         await this.authService.login(user, response);
-        const userData = await transformUserToResponseUserDto(user);
+        const userData = await this.usersMapper.transformUserToResponseUserDto(user);
         response.send(userData);
     }
 }
