@@ -19,7 +19,13 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     }
 
     async findOne(where: FindOptionsWhere<T>): Promise<T> {
-        const entity = await this.entityRepository.findOne({ where });
+        const entity = await this.entityRepository.findOne({where});
+
+        if (!entity) {
+            this.logger.warn('Entity not found with where', where);
+            throw new NotFoundException('Entity not found');
+        }
+
         return entity;
     }
 
