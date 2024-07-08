@@ -8,8 +8,8 @@ import { Profile } from '../profiles/entities/profile.entity';
 import { Roles } from '../roles/types/roles.enum';
 import { Transactional } from 'typeorm-transactional';
 import { GetUserDto } from './dto/get-user.dto';
-import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from './dto/user-response.dto';
+import { GetUserByEmailDto } from './dto/get-user-by-email.dto';
+import { AuthType } from './types/auth-type.enum';
 
 @Injectable()
 export class UsersService {
@@ -23,9 +23,13 @@ export class UsersService {
         await this.validateCreateUserDto(createUserDto);
 
         const user = new User({
-            email: createUserDto.email,
-            password: await bcrypt.hash(createUserDto.password, 10)
+            email: createUserDto.email
         });
+
+        if (createUserDto.password) {
+            user.password = await bcrypt.hash(createUserDto.password, 10);
+            user.authType = AuthType.Local;
+        }
 
         const userRole = await this.rolesService.findOne({ name: Roles.User });
 
@@ -38,10 +42,12 @@ export class UsersService {
     private async validateCreateUserDto(createUserDto: CreateUserDto) {
         try {
             await this.usersRepository.findOne({ email: createUserDto.email });
-            throw new UnprocessableEntityException('Email already exists');
         } catch (err) {
             return;
         }
+
+        //returned this here as it was being consumed immediately by the catch block
+        throw new UnprocessableEntityException('Email already exists');
     }
 
     async verifyUser(email: string, password: string): Promise<User> {
@@ -55,7 +61,11 @@ export class UsersService {
         return user;
     }
 
-    async getUser(getUserDto: GetUserDto): Promise<User> {
+    async getUserById(getUserDto: GetUserDto): Promise<User> {
         return this.usersRepository.findOne(getUserDto);
+    }
+
+    async getUserByEmail(getUserByEmailDto: GetUserByEmailDto): Promise<User> {
+        return this.usersRepository.findOne(getUserByEmailDto);
     }
 }
