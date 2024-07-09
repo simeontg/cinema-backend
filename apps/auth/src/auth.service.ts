@@ -22,6 +22,22 @@ export class AuthService {
         return await this.usersService.create(createUserDto, profile);
     }
 
+    async getOrRegisterUserProfile(createUserDto: CreateUserDto, createProfileDto: CreateProfileDto) {
+        let user: User;
+
+        try {
+            const createdUser = await this.registerUserProfile(
+                { email: createUserDto.email },
+                { firstName: createProfileDto.firstName, lastName: createProfileDto.lastName }
+            );
+            user = createdUser;
+        } catch (err) {
+            user = await this.usersService.getUserByEmail({ email: createUserDto.email });
+        }
+ 
+        return user;
+    }
+
     async login(user: User, response: Response) {
         const tokenPayload: TokenPayload = {
             userId: user.id

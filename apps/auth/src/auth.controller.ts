@@ -59,18 +59,17 @@ export class AuthController {
     ) {
         const { email, firstName, lastName } = request.user as RegisterUserProfileDto;
 
-        let user: User;
         try {
-            user = await this.usersService.getUserByEmail({ email });
-        } catch (err) {
-            const createdUser = await this.authService.registerUserProfile(
+            const user = await this.authService.getOrRegisterUserProfile(
                 { email },
                 { firstName, lastName }
             );
-            user = createdUser;
+            await this.authService.login(user, response);
+            response.redirect(this.configService.get('CLIENT_APP_URL'));
+        } catch (err) {
+            return response
+                .status(500)
+                .json({ msg: 'Something went wrong. Please try again later.' });
         }
-
-        await this.authService.login(user, response);
-        response.redirect(this.configService.get('CLIENT_APP_URL'));
     }
 }
