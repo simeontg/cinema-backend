@@ -17,4 +17,3 @@ export class CreateProfileTable1719483706248 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "profiles"`);
     }
 }
-

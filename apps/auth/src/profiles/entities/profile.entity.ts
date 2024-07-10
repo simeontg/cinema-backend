@@ -12,7 +12,9 @@ export class Profile extends AbstractEntity<Profile> {
     @Column()
     lastName: string;
 
-    @Column()
+    @Column({
+        nullable: true
+    })
     phoneNumber: string;
 
     @OneToOne(() => User, (user) => user.profile)
