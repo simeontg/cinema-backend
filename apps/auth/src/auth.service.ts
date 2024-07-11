@@ -54,6 +54,12 @@ export class AuthService {
         });
     }
 
+    async regenerateToken(id: string, response: Response) {
+        const user = await this.usersService.getUserById({ id });
+        await this.login(user, response);
+        return user;
+    }
+
     signOut(res: Response) {
         res.clearCookie('Authentication');
     }

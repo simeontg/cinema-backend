@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from './users/users.module';
@@ -13,7 +13,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
     imports: [
-        UsersModule,
+        forwardRef(() => UsersModule),
         ProfilesModule,
         LoggerModule,
         HealthModule,
@@ -24,13 +24,14 @@ import { GoogleStrategy } from './strategies/google.strategy';
             useFactory: (configService: ConfigService) => ({
                 secret: configService.get('JWT_SECRET'),
                 signOptions: {
-                    expiresIn: `${configService.get('JWT_EXPIRATION')}s`
+                    expiresIn: `20s`
                 }
             }),
             inject: [ConfigService]
         })
     ],
     controllers: [AuthController],
-    providers: [AuthService, LocalStrategy, JwtStrategy, GoogleStrategy]
+    providers: [AuthService, LocalStrategy, JwtStrategy, GoogleStrategy],
+    exports: [AuthService]
 })
 export class AuthModule {}

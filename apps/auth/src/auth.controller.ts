@@ -7,16 +7,15 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './users/entities/user.entity';
 import { UsersMapper } from './users/users.mapper';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { UsersService } from './users/users.service';
 import { ConfigService } from '@nestjs/config';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
-        private readonly usersService: UsersService,
         private readonly usersMapper: UsersMapper,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
     ) {}
 
     @Post('register')
@@ -39,6 +38,7 @@ export class AuthController {
         response.send(userData);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('signout')
     signOut(@Res() res: Response) {
         this.authService.signOut(res);
