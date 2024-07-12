@@ -4,11 +4,15 @@ import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt } from 'passport-jwt';
-import { AuthService } from '../auth.service';
+import { TokenService } from '@app/common/token/token.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-    constructor(@Inject(AuthService) private authService: AuthService) {
+    constructor(
+        @Inject(TokenService) private tokenService: TokenService,
+        @Inject(UsersService) private usersService: UsersService
+    ) {
         super();
     }
 
@@ -32,11 +36,18 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         } catch (error) {
             if (error instanceof TokenExpiredError) {
                 const { userId } = jwtService.decode(token);
-                const user = await this.authService.regenerateToken(userId, response);
+                const user = this.usersService.getUserById({ id: userId });
+                const newToken = this.tokenService.createToken({ userId });
+                const expires = new Date();
+                expires.setSeconds(expires.getSeconds() + configService.get('JWT_EXPIRATION'));
+                response.cookie('Authentication', newToken, {
+                    httpOnly: true,
+                    expires
+                });
                 request.user = user;
                 return true;
             } else {
-                this.authService.signOut(response);
+                response.clearCookie('Authentication');
             }
         }
         await super.canActivate(context);

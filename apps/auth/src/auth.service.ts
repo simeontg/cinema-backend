@@ -5,16 +5,15 @@ import { CreateUserDto } from './users/dto/create-user.dto';
 import { CreateProfileDto } from './profiles/dto/create-profile.dto';
 import { User } from './users/entities/user.entity';
 import { Response } from 'express';
+import { TokenService, TokenPayload } from '@app/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from './interfaces/token-payload.interface';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
+        private readonly tokenService: TokenService,
         private readonly configService: ConfigService,
-        private readonly jwtService: JwtService
     ) {}
 
     async registerUserProfile(createUserDto: CreateUserDto, createProfileDto: CreateProfileDto) {
@@ -45,19 +44,13 @@ export class AuthService {
 
         const expires = new Date();
         expires.setSeconds(expires.getSeconds() + this.configService.get('JWT_EXPIRATION'));
-
-        const token = this.jwtService.sign(tokenPayload);
+    
+        const token = this.tokenService.createToken(tokenPayload);
 
         response.cookie('Authentication', token, {
             httpOnly: true,
             expires
         });
-    }
-
-    async regenerateToken(id: string, response: Response) {
-        const user = await this.usersService.getUserById({ id });
-        await this.login(user, response);
-        return user;
     }
 
     signOut(res: Response) {
