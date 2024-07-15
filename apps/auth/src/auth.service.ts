@@ -6,14 +6,12 @@ import { CreateProfileDto } from './profiles/dto/create-profile.dto';
 import { User } from './users/entities/user.entity';
 import { Response } from 'express';
 import { TokenService, TokenPayload } from '@app/common';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
         private readonly tokenService: TokenService,
-        private readonly configService: ConfigService,
     ) {}
 
     async registerUserProfile(createUserDto: CreateUserDto, createProfileDto: CreateProfileDto) {
@@ -42,10 +40,20 @@ export class AuthService {
             userId: user.id
         };
 
-        const expires = new Date();
-        expires.setSeconds(expires.getSeconds() + this.configService.get('JWT_EXPIRATION'));
+        const { token, expires } = this.tokenService.createToken(tokenPayload);
+
+        response.cookie('Authentication', token, {
+            httpOnly: true,
+            expires
+        });
+    }
     
-        const token = this.tokenService.createToken(tokenPayload);
+    async getNewToken(userId: string, response: Response) {
+        const tokenPayload: TokenPayload = {
+            userId
+        };
+
+        const { token, expires } = this.tokenService.createToken(tokenPayload);
 
         response.cookie('Authentication', token, {
             httpOnly: true,

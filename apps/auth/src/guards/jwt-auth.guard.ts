@@ -1,18 +1,13 @@
-import { ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt } from 'passport-jwt';
-import { TokenService } from '@app/common/token/token.service';
-import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-    constructor(
-        @Inject(TokenService) private tokenService: TokenService,
-        @Inject(UsersService) private usersService: UsersService
-    ) {
+    constructor() {
         super();
     }
 
@@ -36,18 +31,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         } catch (error) {
             if (error instanceof TokenExpiredError) {
                 const { userId } = jwtService.decode(token);
-                const user = this.usersService.getUserById({ id: userId });
-                const newToken = this.tokenService.createToken({ userId });
-                const expires = new Date();
-                expires.setSeconds(expires.getSeconds() + configService.get('JWT_EXPIRATION'));
-                response.cookie('Authentication', newToken, {
-                    httpOnly: true,
-                    expires
-                });
-                request.user = user;
-                return true;
+                response.status(401).json({ msg: 'Token has expired', userId });
             } else {
-                response.clearCookie('Authentication');
+                response.clearCookie('Authentication').status(401).json({ msg: 'Invalid token' });
             }
         }
         await super.canActivate(context);

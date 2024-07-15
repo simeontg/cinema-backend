@@ -38,6 +38,11 @@ export class AuthController {
         response.send(userData);
     }
 
+    @Post('getToken')
+    async getToken(userId: string, @Res({ passthrough: true }) response: Response) {
+        await this.authService.getNewToken(userId, response);
+    }
+
     @UseGuards(JwtAuthGuard)
     @Post('signout')
     signOut(@Res() res: Response) {
