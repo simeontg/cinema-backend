@@ -34,6 +34,8 @@ export class RefreshJwtAuthGuard extends AuthGuard('jwt') {
                 const providedId = request?.body?.userId;
                 if (providedId === userId) {
                     return true;
+                } else {
+                    response.clearCookie('Authentication').status(401).json({ msg: 'Invalid token' });
                 }
             } else {
                 response.clearCookie('Authentication').status(401).json({ msg: 'Invalid token' });
