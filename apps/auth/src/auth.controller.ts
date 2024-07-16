@@ -9,6 +9,8 @@ import { UsersMapper } from './users/users.mapper';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RefreshJwtAuthGuard } from './guards/refresh-jwt-auth.guard';
+import { GetTokenDto } from './users/dto/get-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -37,10 +39,11 @@ export class AuthController {
         const userData = await this.usersMapper.transformUserToResponseUserDto(user);
         response.send(userData);
     }
-
+    
+    @UseGuards(RefreshJwtAuthGuard)
     @Post('getToken')
-    async getToken(userId: string, @Res({ passthrough: true }) response: Response) {
-        await this.authService.getNewToken(userId, response);
+    async getToken(@Body() getTokenDto: GetTokenDto, @Res({ passthrough: true }) response: Response) {
+        await this.authService.getNewToken(getTokenDto.userId, response);
     }
 
     @UseGuards(JwtAuthGuard)
