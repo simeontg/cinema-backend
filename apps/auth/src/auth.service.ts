@@ -5,16 +5,13 @@ import { CreateUserDto } from './users/dto/create-user.dto';
 import { CreateProfileDto } from './profiles/dto/create-profile.dto';
 import { User } from './users/entities/user.entity';
 import { Response } from 'express';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from './interfaces/token-payload.interface';
+import { TokenService, TokenPayload } from '@app/common';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
-        private readonly configService: ConfigService,
-        private readonly jwtService: JwtService
+        private readonly tokenService: TokenService,
     ) {}
 
     async registerUserProfile(createUserDto: CreateUserDto, createProfileDto: CreateProfileDto) {
@@ -43,10 +40,20 @@ export class AuthService {
             userId: user.id
         };
 
-        const expires = new Date();
-        expires.setSeconds(expires.getSeconds() + this.configService.get('JWT_EXPIRATION'));
+        const { token, expires } = this.tokenService.createToken(tokenPayload);
 
-        const token = this.jwtService.sign(tokenPayload);
+        response.cookie('Authentication', token, {
+            httpOnly: true,
+            expires
+        });
+    }
+    
+    async getNewToken(userId: string, response: Response) {
+        const tokenPayload: TokenPayload = {
+            userId
+        };
+
+        const { token, expires } = this.tokenService.createToken(tokenPayload);
 
         response.cookie('Authentication', token, {
             httpOnly: true,

@@ -6,7 +6,7 @@ import { Request } from 'express';
 import { ExtractJwt } from 'passport-jwt';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class RefreshJwtAuthGuard extends AuthGuard('jwt') {
     constructor() {
         super();
     }
@@ -30,8 +30,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
             request['user'] = payload;
         } catch (error) {
             if (error instanceof TokenExpiredError) {
-                const { userId } = jwtService.decode(token);
-                response.status(401).json({ msg: 'Token has expired', userId });
+                const { userId }  = jwtService.decode(token);
+                const providedId = request?.body?.userId;
+                if (providedId === userId) {
+                    return true;
+                } else {
+                    response.clearCookie('Authentication').status(401).json({ msg: 'Invalid token' });
+                }
             } else {
                 response.clearCookie('Authentication').status(401).json({ msg: 'Invalid token' });
             }
