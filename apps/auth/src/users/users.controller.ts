@@ -1,9 +1,9 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { CurrentUser } from '../decorators/current-user.decorator';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersMapper } from './users.mapper';
+import { CurrentUser } from '@app/common';
 
 @Controller('users')
 export class UsersController {

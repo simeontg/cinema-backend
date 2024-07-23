@@ -17,13 +17,13 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
-    "movies": {
+    "main": {
       "type": "application",
-      "root": "apps/movies",
+      "root": "apps/main",
       "entryFile": "main",
-      "sourceRoot": "apps/movies/src",
+      "sourceRoot": "apps/main/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/movies/tsconfig.app.json"
+        "tsConfigPath": "apps/main/tsconfig.app.json"
       }
     },
     "auth": {
@@ -33,15 +33,6 @@
       "sourceRoot": "apps/auth/src",
       "compilerOptions": {
         "tsConfigPath": "apps/auth/tsconfig.app.json"
-      }
-    },
-    "cinema": {
-      "type": "application",
-      "root": "apps/cinema",
-      "entryFile": "main",
-      "sourceRoot": "apps/cinema/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/cinema/tsconfig.app.json"
       }
     }
   },

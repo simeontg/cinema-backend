@@ -5,12 +5,12 @@ services:
       - .env
     ports:
       - 5555:5432
-  movies:
+  main:
     build:
       context: .
-      dockerfile: ./apps/movies/Dockerfile
+      dockerfile: ./apps/main/Dockerfile
       target: development
-    command: npm run start:dev movies
+    command: npm run start:dev main
     environment:
       - WATCHPACK_POLLING=true
     env_file:
@@ -31,19 +31,5 @@ services:
       - .env
     ports:
       - 3002:3002
-    volumes:
-      - .:/app
-  cinema:
-    build:
-      context: .
-      dockerfile: ./apps/cinema/Dockerfile
-      target: development
-    command: npm run start:dev cinema
-    environment:
-      - WATCHPACK_POLLING=true
-    env_file:
-      - .env
-    ports:
-      - 3003:3003
     volumes:
       - .:/app
