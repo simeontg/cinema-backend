@@ -33,7 +33,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
                 const { userId } = jwtService.decode(token);
                 response.status(401).json({ msg: 'Token has expired', userId });
             } else {
-                console.log(response);
                 response.clearCookie('Authentication').status(401).json({ msg: 'Invalid token' });
             }
         }
