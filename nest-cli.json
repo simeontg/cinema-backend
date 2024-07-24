@@ -17,13 +17,13 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
-    "movies": {
+    "main": {
       "type": "application",
-      "root": "apps/movies",
+      "root": "apps/main",
       "entryFile": "main",
-      "sourceRoot": "apps/movies/src",
+      "sourceRoot": "apps/main/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/movies/tsconfig.app.json"
+        "tsConfigPath": "apps/main/tsconfig.app.json"
       }
     },
     "auth": {

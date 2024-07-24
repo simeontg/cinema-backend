@@ -3,7 +3,6 @@ import { AuthService } from './auth.service';
 import { RegisterUserProfileDto } from './dto/register-user-profile.dto';
 import { Request, Response } from 'express';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './users/entities/user.entity';
 import { UsersMapper } from './users/users.mapper';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
@@ -11,6 +10,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from './guards/refresh-jwt-auth.guard';
 import { GetTokenDto } from './users/dto/get-token.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { CurrentUser } from '@app/common';
 
 @Controller('auth')
 export class AuthController {
@@ -79,5 +80,13 @@ export class AuthController {
                 .status(500)
                 .json({ msg: 'Something went wrong. Please try again later.' });
         }
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @MessagePattern('authenticate')
+    async authenticate(
+        @Payload() data: any
+    ) {
+        return data.user;
     }
 }

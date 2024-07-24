@@ -31,6 +31,10 @@ export class MoviesService {
     return this.moviesRepository.findOne({ id });
   }
 
+  findOneByTitle(title: string) {
+    return this.moviesRepository.findOne({ title });
+  }
+
   update(id: string, updateMovieDto: UpdateMovieDto) {
     return this.moviesRepository.findOneAndUpdate({ id }, updateMovieDto);
   }

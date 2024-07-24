@@ -11,7 +11,7 @@ import { TokenService } from './token.service';
             useFactory: (configService: ConfigService) => ({
                 secret: configService.get('JWT_SECRET'),
                 signOptions: {
-                    expiresIn: `${configService.get('JWT_EXPIRATION')}s`
+                    expiresIn: `4s`
                 }
             }),
             inject: [ConfigService]

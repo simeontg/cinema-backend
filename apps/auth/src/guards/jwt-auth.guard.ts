@@ -42,7 +42,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     private extractTokenFromRequest(request: Request): string | undefined {
         const extractor = ExtractJwt.fromExtractors([
-            (req: Request) => req?.cookies?.Authentication
+            (req: any) => req?.cookies?.Authentication || req?.Authentication
         ]);
         return extractor(request);
     }

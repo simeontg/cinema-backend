@@ -9,10 +9,10 @@ COPY nest-cli.json nest-cli.json
 
 RUN npm install
 
-COPY apps/movies apps/movies
+COPY apps/main apps/main
 COPY libs libs
 
-RUN npm run build movies
+RUN npm run build main
 
 FROM node:alpine As production 
 
@@ -28,4 +28,4 @@ RUN npm install --prod
 
 COPY --from=development /app/dist ./dist
 
-CMD ["node", "dist/apps/movies/main"]
+CMD ["node", "dist/apps/main/main"]
