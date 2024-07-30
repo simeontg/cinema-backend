@@ -1,5 +1,5 @@
 import { Logger, NotFoundException } from "@nestjs/common";
-import { EntityManager, FindManyOptions, FindOptionsWhere, Repository } from "typeorm";
+import { EntityManager, FindManyOptions, FindOptionsWhere, Repository, SelectQueryBuilder } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 
 import { AbstractEntity } from "./abstract.entity";

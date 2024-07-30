@@ -38,4 +38,5 @@ export class SessionService {
     findAll() {
         return this.sessionsRepository.find({});
     }
+    
 }
