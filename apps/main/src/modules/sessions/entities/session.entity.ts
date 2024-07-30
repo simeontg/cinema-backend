@@ -18,7 +18,9 @@ export class Session extends AbstractEntity<Session> {
     @Column()
     ticket_price: number;
 
-    @ManyToOne(() => Cinema, (cinema) => cinema.sessions)
+    @ManyToOne(() => Cinema, (cinema) => cinema.sessions, {
+        eager: true
+    })
     cinema: Cinema;
 
     @ManyToOne(() => Hall, (hall) => hall.sessions)

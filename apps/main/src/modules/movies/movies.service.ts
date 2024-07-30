@@ -27,8 +27,8 @@ export class MoviesService {
     return this.moviesRepository.find(where)
   }
 
-  findOne(id: string) {
-    return this.moviesRepository.findOne({ id });
+  findOne(id: string, relations?: string[]) {
+    return this.moviesRepository.findOne({ id }, relations);
   }
 
   findOneByTitle(title: string) {
