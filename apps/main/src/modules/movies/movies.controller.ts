@@ -62,6 +62,6 @@ export class MoviesController extends BaseController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.moviesService.findOne(id);
+    return this.moviesService.findOne(id, ['sessions', 'sessions.cinema.city']);
   }
 }

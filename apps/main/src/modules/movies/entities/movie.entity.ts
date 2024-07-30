@@ -29,8 +29,6 @@ export class Movie extends AbstractEntity<Movie> {
     })
     trended: boolean;
 
-    @OneToMany(() => Session, (session) => session.movie, {
-        eager: true
-    })
+    @OneToMany(() => Session, (session) => session.movie)
     sessions: Session[];
 }
