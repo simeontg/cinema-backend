@@ -1,23 +1,19 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule, LoggerModule, AUTH_SERVICE } from '@app/common';
-import { SessionController } from './session.controller';
-import { SessionService } from './session.service';
-import { Session } from './entities/session.entity';
-import { HallModule } from '../hall/hall.module';
-import { CinemaModule } from '../cinemas/cinema.module';
-import { MoviesModule } from '../movies/movies.module';
-import { SessionsRepository } from './session.repository';
+import { AUTH_SERVICE, DatabaseModule, LoggerModule } from '@app/common';
+import { Reservation } from './entities/reservation.entity';
+import { ReservationRepository } from './reservations.repository';
+import { ReservationService } from './reservations.service';
+import { ReservationController } from './reservations.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SessionModule } from '../sessions/session.module';
+import { ReservationStatusModule } from '../reservation_status/reservation-status.module';
 
 @Module({
     imports: [
         DatabaseModule,
-        DatabaseModule.forFeature([Session]),
+        DatabaseModule.forFeature([Reservation]),
         LoggerModule,
-        HallModule,
-        CinemaModule,
-        MoviesModule,
         ClientsModule.registerAsync([
             {
                 name: AUTH_SERVICE,
@@ -31,10 +27,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
                 inject: [ConfigService],
                 imports: [ConfigModule]
             }
-        ])
+        ]),
+        SessionModule,
+        ReservationStatusModule
     ],
-    controllers: [SessionController],
-    providers: [SessionService, SessionsRepository],
-    exports: [SessionService]
+    controllers: [ReservationController],
+    providers: [ReservationRepository, ReservationService]
 })
-export class SessionModule {}
+export class ReservationModule {}
