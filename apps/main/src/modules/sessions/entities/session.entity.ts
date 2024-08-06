@@ -3,7 +3,7 @@ import { Cinema } from '../../cinemas/entities/cinema.entity';
 import { Hall } from '../../hall/entities/hall.entity';
 import { AbstractEntity } from '@app/common';
 import { Movie } from '../../movies/entities/movie.entity';
-import { ReservationHallSeats } from '../../reservationHallSeats/entities/reservationHallSeat.entity';
+import { ReservationHallSeats } from '../../reservations/entities/reservationHallSeat.entity';
 
 @Entity()
 export class Session extends AbstractEntity<Session> {

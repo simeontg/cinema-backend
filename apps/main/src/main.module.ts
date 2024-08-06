@@ -10,7 +10,7 @@ import { ReservationModule } from './modules/reservations/reservations.module';
         UploaderModule,
         ReservationModule,
         HealthModule,
-        SessionModule,
+        SessionModule
     ],
     controllers: [MainController]
 })

@@ -7,12 +7,15 @@ import { ReservationController } from './reservations.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SessionModule } from '../sessions/session.module';
-import { ReservationStatusModule } from '../reservation_status/reservation-status.module';
+import { ReservationProcessor } from './reservations.proccesor';
+import { BullModule } from '@nestjs/bull';
+import { ReservationHallSeats } from './entities/reservationHallSeat.entity';
+import { ReservationStatusModule } from './reservationStatus/reservationStatus.module';
 
 @Module({
     imports: [
         DatabaseModule,
-        DatabaseModule.forFeature([Reservation]),
+        DatabaseModule.forFeature([Reservation, ReservationHallSeats]),
         LoggerModule,
         ClientsModule.registerAsync([
             {
@@ -28,10 +31,19 @@ import { ReservationStatusModule } from '../reservation_status/reservation-statu
                 imports: [ConfigModule]
             }
         ]),
+        BullModule.forRoot({
+            redis: {
+                host: 'redis',
+                port: 6379
+            }
+        }),
+        BullModule.registerQueue({
+            name: 'reservation'
+        }),
         SessionModule,
         ReservationStatusModule
     ],
     controllers: [ReservationController],
-    providers: [ReservationRepository, ReservationService]
+    providers: [ReservationRepository, ReservationService, ReservationProcessor]
 })
 export class ReservationModule {}

@@ -2,10 +2,9 @@ import { Module } from '@nestjs/common';
 import { AUTH_SERVICE, DatabaseModule, LoggerModule } from '@app/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SessionModule } from '../sessions/session.module';
+import { ReservationStatusRepository } from './reservationStatus.repository';
+import { ReservationStatusService } from './reservationStatus.service';
 import { ReservationStatus } from './entities/reservation-status.entity';
-import { ReservationStatusRepository } from './reservation-status.repository';
-import { ReservationStatusService } from './reservation-status.service';
 
 @Module({
     imports: [
@@ -25,8 +24,7 @@ import { ReservationStatusService } from './reservation-status.service';
                 inject: [ConfigService],
                 imports: [ConfigModule]
             }
-        ]),
-        SessionModule
+        ])
     ],
     providers: [ReservationStatusRepository, ReservationStatusService],
     exports: [ReservationStatusService]

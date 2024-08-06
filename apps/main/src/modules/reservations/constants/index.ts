@@ -1,1 +1,1 @@
-export const RESERVATION_EXPIRATION_TIME = 15 * 60 * 1000;
+export const RESERVATION_EXPIRATION_TIME = 15 * 60 * 1000; //15 min
