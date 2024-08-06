@@ -6,6 +6,7 @@ import { CinemaService } from '../cinemas/cinema.service';
 import { Session } from './entities/session.entity';
 import { SessionsRepository } from './session.repository';
 import { Transactional } from 'typeorm-transactional';
+import { FindOptionsWhere } from 'typeorm';
 
 @Injectable()
 export class SessionService {
@@ -37,6 +38,10 @@ export class SessionService {
 
     findAll() {
         return this.sessionsRepository.find({});
+    }
+
+    findOne(id: string, relations?: string[]) {
+        return this.sessionsRepository.findOne({ id }, relations);
     }
     
 }

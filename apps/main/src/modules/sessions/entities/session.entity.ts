@@ -1,8 +1,9 @@
-import { Entity, Column, ManyToOne } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Cinema } from '../../cinemas/entities/cinema.entity';
 import { Hall } from '../../hall/entities/hall.entity';
 import { AbstractEntity } from '@app/common';
 import { Movie } from '../../movies/entities/movie.entity';
+import { ReservationHallSeats } from '../../reservations/entities/reservationHallSeat.entity';
 
 @Entity()
 export class Session extends AbstractEntity<Session> {
@@ -25,4 +26,7 @@ export class Session extends AbstractEntity<Session> {
 
     @ManyToOne(() => Hall, (hall) => hall.sessions)
     hall: Hall;
+
+    @OneToMany(() => ReservationHallSeats, (reservationHallSeats) => reservationHallSeats.session)
+    reservationHallSeats: ReservationHallSeats[];
 }

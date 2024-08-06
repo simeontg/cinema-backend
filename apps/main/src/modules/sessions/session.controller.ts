@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { SessionService } from './session.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { JwtAuthGuard } from '@app/common';
@@ -16,5 +16,11 @@ export class SessionController {
     @Get()
     findAll() {
         return this.sessionService.findAll();
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+      return this.sessionService.findOne(id, ['movie']);
     }
 }
