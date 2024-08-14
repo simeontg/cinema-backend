@@ -34,6 +34,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         ])
     ],
     controllers: [SessionController],
-    providers: [SessionService, SessionsRepository]
+    providers: [SessionService, SessionsRepository],
+    exports: [SessionService]
 })
 export class SessionModule {}

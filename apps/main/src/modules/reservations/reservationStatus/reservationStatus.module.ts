@@ -1,21 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AUTH_SERVICE, DatabaseModule, LoggerModule } from '@app/common';
-import { Hall } from './entities/hall.entity';
-import { HallController } from './hall.controller';
-import { HallService } from './hall.service';
-import { HallsRepository } from './hall.repository';
-import { CinemaModule } from '../cinemas/cinema.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Seat } from './entities/seat.entity';
-import { HallSeat } from './entities/hallSeat.entity';
+import { ReservationStatusRepository } from './reservationStatus.repository';
+import { ReservationStatusService } from './reservationStatus.service';
+import { ReservationStatus } from './entities/reservation-status.entity';
 
 @Module({
     imports: [
         DatabaseModule,
-        DatabaseModule.forFeature([Hall, Seat, HallSeat]),
+        DatabaseModule.forFeature([ReservationStatus]),
         LoggerModule,
-        CinemaModule,
         ClientsModule.registerAsync([
             {
                 name: AUTH_SERVICE,
@@ -31,8 +26,7 @@ import { HallSeat } from './entities/hallSeat.entity';
             }
         ])
     ],
-    controllers: [HallController],
-    providers: [HallService, HallsRepository],
-    exports: [HallService]
+    providers: [ReservationStatusRepository, ReservationStatusService],
+    exports: [ReservationStatusService]
 })
-export class HallModule {}
+export class ReservationStatusModule {}
