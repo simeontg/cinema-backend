@@ -12,6 +12,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { FindOptionsWhere } from 'typeorm';
 import { ReservationHallSeatService } from './reservationHallSeat/reservationHallSeat.service';
+import { ReservationGateway } from './reservations.gateway';
 
 @Injectable()
 export class ReservationService {
@@ -20,6 +21,7 @@ export class ReservationService {
         private readonly reservationStatusService: ReservationStatusService,
         private readonly reservationRepository: ReservationRepository,
         private readonly reservationHallSeatService: ReservationHallSeatService,
+        private readonly reservationGateway: ReservationGateway,
         @InjectQueue('reservation') private reservationQueue: Queue
     ) {}
 
@@ -75,7 +77,7 @@ export class ReservationService {
                 session: updatedReservation.session
             });
         }
-
+        this.reservationGateway.emitReservation(updatedReservation.session.id);
         return updatedReservation;
     }
 

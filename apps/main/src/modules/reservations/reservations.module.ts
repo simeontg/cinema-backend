@@ -11,6 +11,7 @@ import { ReservationProcessor } from './reservations.proccesor';
 import { BullModule } from '@nestjs/bull';
 import { ReservationStatusModule } from './reservationStatus/reservationStatus.module';
 import { ReservationHallSeatModule } from './reservationHallSeat/reservationHallSeat.module';
+import { ReservationGateway } from './reservations.gateway';
 
 @Module({
     imports: [
@@ -45,6 +46,6 @@ import { ReservationHallSeatModule } from './reservationHallSeat/reservationHall
         ReservationHallSeatModule
     ],
     controllers: [ReservationController],
-    providers: [ReservationRepository, ReservationService, ReservationProcessor]
+    providers: [ReservationRepository, ReservationService, ReservationProcessor, ReservationGateway]
 })
 export class ReservationModule {}
