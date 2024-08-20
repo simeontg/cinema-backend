@@ -49,6 +49,10 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
         return this.entityRepository.findBy(where);
     }
 
+    async findMany(where: FindManyOptions<T>) {
+        return this.entityRepository.find(where);
+    }
+
     async findOneAndDelete(where: FindOptionsWhere<T>) {
         await this.entityRepository.delete(where);
     }

@@ -20,7 +20,7 @@ export class SessionService {
     @Transactional()
     async create(createSessionDto: CreateSessionDto) {
         const cinema = await this.cinemaService.findOne(createSessionDto.cinema);
-        const hall = await this.hallService.findOne(createSessionDto.hall);
+        const hall = await this.hallService.findOne({ hall_name: createSessionDto.hall });
         const movie = await this.movieService.findOneByTitle(createSessionDto.movie);
         if (hall.cinema.name !== cinema.name) {
             throw new Error('No such hall in cinema');
@@ -43,5 +43,4 @@ export class SessionService {
     findOne(id: string, relations?: string[]) {
         return this.sessionsRepository.findOne({ id }, relations);
     }
-    
 }

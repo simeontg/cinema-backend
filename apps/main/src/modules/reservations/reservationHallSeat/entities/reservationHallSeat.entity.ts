@@ -1,11 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Reservation } from './reservation.entity';
-import { Session } from '../../sessions/entities/session.entity';
-import { HallSeat } from '../../hall/entities/hallSeat.entity';
+import { Reservation } from '../../entities/reservation.entity';
+import { Session } from '../../../sessions/entities/session.entity';
+import { HallSeat } from '../../../hall/hallSeat/entities/hallSeat.entity';
 import { AbstractEntity } from '@app/common';
 
 @Entity()
-export class ReservationHallSeats extends AbstractEntity<ReservationHallSeats> {
+export class ReservationHallSeat extends AbstractEntity<ReservationHallSeat> {
     @ManyToOne(() => Reservation, (reservation) => reservation.reservationHallSeats)
     reservation: Reservation;
 

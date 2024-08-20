@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString, IsObject } from 'class-validator';
+import { HallPlan } from '../types/hallPlan';
 
 export class CreateHallDto {
   @IsNotEmpty()
@@ -11,13 +12,5 @@ export class CreateHallDto {
 
   @IsNotEmpty()
   @IsObject()
-  plan: {
-    rows: {
-      row: string;
-      seats: {
-        seat_number: string;
-        reserved: boolean;
-      }[];
-    }[];
-  };
+  plan: HallPlan;
 }

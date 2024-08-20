@@ -19,6 +19,12 @@ export class ReservationController {
     }
 
     @UseGuards(JwtAuthGuard)
+    @Get('user')
+    async getUserReservations(@CurrentUser() user: UserDto) {
+        return this.reservationService.getUserReservations(user.profile.id);
+    }
+
+    @UseGuards(JwtAuthGuard)
     @Put(':id')
     async update(@Param('id') id: string, @Body() updateReservationDto: UpdateReservationDto) {
         return this.reservationService.update(id, updateReservationDto);
