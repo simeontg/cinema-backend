@@ -28,8 +28,7 @@ export class HallController {
         @Query() { sessionId }: { sessionId: string },
         @Param() { id }: { id: string }
     ): Promise<HallPlanResponseDto> {
-        const hall = await this.hallService.findOne({ id: id });
-        const hallPlan = this.hallService.mapHallPlan(hall.hall_plan, sessionId);
+        const hallPlan = await this.hallService.getMappedHallPlan(id, sessionId);
         return plainToInstance(HallPlanResponseDto, hallPlan);
     }
 }

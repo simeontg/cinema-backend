@@ -1,0 +1,1 @@
+export const RESERVATION_GATEWAY_NAMESPACE = '/reservation';

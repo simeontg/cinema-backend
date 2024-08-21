@@ -38,6 +38,13 @@ export class HallService {
         return this.hallsRepository.findOne(where);
     }
 
+    @Transactional()
+    async getMappedHallPlan(hallId: string, sessionId: string) {
+        const hall = await this.findOne({ id: hallId });
+        const hallPlan = await this.mapHallPlan(hall.hall_plan, sessionId);
+        return hallPlan
+    }
+
     async mapHallPlan(hallPlan: HallPlan, sessionId: string): Promise<HallPlanResponseDto> {
         const mappedHallPlan: HallPlanResponseDto = {};
     

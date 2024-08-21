@@ -1,11 +1,15 @@
-import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { RESERVATION_GATEWAY_NAMESPACE } from '@app/common/constants/websocket';
+import {
+    WebSocketGateway,
+    WebSocketServer,
+} from '@nestjs/websockets';
 import { Server } from 'socket.io';
 
 @WebSocketGateway({
     cors: {
-        origin: process.env.CLIENT_APP_URL
+      origin: process.env.CLIENT_APP_URL
     },
-    namespace: '/reservation'
+    namespace: RESERVATION_GATEWAY_NAMESPACE
 })
 export class ReservationGateway {
     @WebSocketServer()

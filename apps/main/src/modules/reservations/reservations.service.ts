@@ -36,7 +36,7 @@ export class ReservationService {
                 session: { id: session.id },
                 reservation_status: { id: status.id },
                 profile_id: extendedReservationDto.profileId
-            });
+            }, ['session']);
             return existingReservation;
         } catch (err) {
             const now = new Date();
@@ -55,7 +55,7 @@ export class ReservationService {
                 { id },
                 { delay: RESERVATION_EXPIRATION_TIME }
             );
-            return savedReservation;
+            return this.findOne({ id: savedReservation.id }, ['session']);
         }
     }
 
@@ -78,11 +78,11 @@ export class ReservationService {
             });
         }
         this.reservationGateway.emitReservation(updatedReservation.session.id);
-        return updatedReservation;
+        return this.findOne({ id: updatedReservation.id }, ['session']);
     }
 
-    findOne(where: FindOptionsWhere<Reservation>) {
-        return this.reservationRepository.findOne(where);
+    findOne(where: FindOptionsWhere<Reservation>, relations?: string[]) {
+        return this.reservationRepository.findOne(where, relations);
     }
 
     getUserReservations(profileId: string) {
