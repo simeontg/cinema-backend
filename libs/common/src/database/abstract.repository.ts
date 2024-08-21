@@ -34,7 +34,7 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
         return entity;
     }
 
-    async findOneAndUpdate(where: FindOptionsWhere<T>, partialEntity: QueryDeepPartialEntity<T>) {
+    async findOneAndUpdate(where: FindOptionsWhere<T>, partialEntity: QueryDeepPartialEntity<T>, relations: string[]) {
         const updateResult = await this.entityRepository.update(where, partialEntity);
 
         if (!updateResult.affected) {
@@ -42,11 +42,15 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
             throw new NotFoundException('Entity not found');
         }
 
-        return this.findOne(where);
+        return this.findOne(where, relations);
     }
 
     async find(where: FindOptionsWhere<T>) {
         return this.entityRepository.findBy(where);
+    }
+
+    async findMany(where: FindManyOptions<T>) {
+        return this.entityRepository.find(where);
     }
 
     async findOneAndDelete(where: FindOptionsWhere<T>) {

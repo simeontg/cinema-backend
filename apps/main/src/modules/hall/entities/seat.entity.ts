@@ -1,6 +1,6 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { AbstractEntity } from '@app/common';
-import { HallSeat } from './hallSeat.entity';
+import { HallSeat } from '../hallSeat/entities/hallSeat.entity';
 
 @Entity()
 export class Seat extends AbstractEntity<Seat> {

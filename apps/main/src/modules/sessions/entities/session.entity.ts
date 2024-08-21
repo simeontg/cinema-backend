@@ -3,7 +3,7 @@ import { Cinema } from '../../cinemas/entities/cinema.entity';
 import { Hall } from '../../hall/entities/hall.entity';
 import { AbstractEntity } from '@app/common';
 import { Movie } from '../../movies/entities/movie.entity';
-import { ReservationHallSeats } from '../../reservations/entities/reservationHallSeat.entity';
+import { ReservationHallSeat } from '../../reservations/reservationHallSeat/entities/reservationHallSeat.entity';
 
 @Entity()
 export class Session extends AbstractEntity<Session> {
@@ -24,9 +24,9 @@ export class Session extends AbstractEntity<Session> {
     })
     cinema: Cinema;
 
-    @ManyToOne(() => Hall, (hall) => hall.sessions)
+    @ManyToOne(() => Hall, (hall) => hall.sessions, { eager: true })
     hall: Hall;
 
-    @OneToMany(() => ReservationHallSeats, (reservationHallSeats) => reservationHallSeats.session)
-    reservationHallSeats: ReservationHallSeats[];
+    @OneToMany(() => ReservationHallSeat, (reservationHallSeat) => reservationHallSeat.session)
+    reservationHallSeats: ReservationHallSeat[];
 }

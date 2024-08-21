@@ -9,13 +9,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SessionModule } from '../sessions/session.module';
 import { ReservationProcessor } from './reservations.proccesor';
 import { BullModule } from '@nestjs/bull';
-import { ReservationHallSeats } from './entities/reservationHallSeat.entity';
 import { ReservationStatusModule } from './reservationStatus/reservationStatus.module';
+import { ReservationHallSeatModule } from './reservationHallSeat/reservationHallSeat.module';
+import { ReservationGateway } from './reservations.gateway';
 
 @Module({
     imports: [
         DatabaseModule,
-        DatabaseModule.forFeature([Reservation, ReservationHallSeats]),
+        DatabaseModule.forFeature([Reservation]),
         LoggerModule,
         ClientsModule.registerAsync([
             {
@@ -41,9 +42,10 @@ import { ReservationStatusModule } from './reservationStatus/reservationStatus.m
             name: 'reservation'
         }),
         SessionModule,
-        ReservationStatusModule
+        ReservationStatusModule,
+        ReservationHallSeatModule
     ],
     controllers: [ReservationController],
-    providers: [ReservationRepository, ReservationService, ReservationProcessor]
+    providers: [ReservationRepository, ReservationService, ReservationProcessor, ReservationGateway]
 })
 export class ReservationModule {}
