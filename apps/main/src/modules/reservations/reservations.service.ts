@@ -67,7 +67,8 @@ export class ReservationService {
 
         const updatedReservation = await this.reservationRepository.findOneAndUpdate(
             { id },
-            { total_price: updateReservationDto.total_price, reservation_status: status }
+            { total_price: updateReservationDto.total_price, reservation_status: status },
+            ['session']
         );
 
         for (let hallSeatId of updateReservationDto.hallSeatIds) {
@@ -78,7 +79,7 @@ export class ReservationService {
             });
         }
         this.reservationGateway.emitReservation(updatedReservation.session.id);
-        return this.findOne({ id: updatedReservation.id }, ['session']);
+        return updatedReservation;
     }
 
     findOne(where: FindOptionsWhere<Reservation>, relations?: string[]) {

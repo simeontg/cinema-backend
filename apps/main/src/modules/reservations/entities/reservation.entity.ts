@@ -8,7 +8,7 @@ import { ReservationHallSeat } from '../reservationHallSeat/entities/reservation
     name: 'reservations'
 })
 export class Reservation extends AbstractEntity<Reservation> {
-    @ManyToOne(() => Session, { eager: true })
+    @ManyToOne(() => Session)
     @JoinColumn({ name: 'session_id' })
     session: Session;
 
