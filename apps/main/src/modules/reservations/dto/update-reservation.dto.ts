@@ -6,5 +6,10 @@ export class UpdateReservationDto {
     total_price: number;
 
     @IsOptional()
-    hallSeatIds: string[];
+    hallSeats: hallSeat[];
+}
+
+interface hallSeat {
+    id: string;
+    name: string;
 }

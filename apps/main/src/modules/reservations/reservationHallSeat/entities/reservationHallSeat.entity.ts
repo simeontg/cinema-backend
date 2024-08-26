@@ -16,5 +16,5 @@ export class ReservationHallSeat extends AbstractEntity<ReservationHallSeat> {
     session: Session;
 
     @Column()
-    reserved: boolean;
+    name: string;
 }

@@ -27,7 +27,7 @@ export class ReservationHallSeatService {
             reservation: createReservationHallSeatDto.reservation,
             session: createReservationHallSeatDto.session,
             hallSeat: hallSeat,
-            reserved: true
+            name: createReservationHallSeatDto.name
         });
 
         return this.reservationHallSeatRepository.create(reservationHallSeat);
