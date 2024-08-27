@@ -79,7 +79,7 @@ export class ReservationService {
                 reservation: updatedReservation,
                 hallSeatId: hallSeat.id,
                 session: updatedReservation.session,
-                name: hallSeat.name
+                location: hallSeat.location
             });
         }
         this.reservationGateway.emitReservation(updatedReservation.session.id);

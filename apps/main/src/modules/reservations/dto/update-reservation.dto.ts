@@ -11,5 +11,5 @@ export class UpdateReservationDto {
 
 interface hallSeat {
     id: string;
-    name: string;
+    location: string;
 }

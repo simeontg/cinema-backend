@@ -15,5 +15,5 @@ export class CreateReservationHallSeatDto {
 
     @IsNotEmpty()
     @IsString()
-    name: string;
+    location: string;
 }

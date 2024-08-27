@@ -22,12 +22,11 @@ export class ReservationHallSeatService {
 
     async create(createReservationHallSeatDto: CreateReservationHallSeatDto) {
         const hallSeat = await this.hallSeatService.findOne({id: createReservationHallSeatDto.hallSeatId});
-
         const reservationHallSeat = new ReservationHallSeat({
             reservation: createReservationHallSeatDto.reservation,
             session: createReservationHallSeatDto.session,
             hallSeat: hallSeat,
-            name: createReservationHallSeatDto.name
+            location: createReservationHallSeatDto.location
         });
 
         return this.reservationHallSeatRepository.create(reservationHallSeat);
