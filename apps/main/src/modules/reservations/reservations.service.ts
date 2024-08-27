@@ -10,7 +10,7 @@ import { ReservationRepository } from './reservations.repository';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { FindOptionsWhere } from 'typeorm';
+import { FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { ReservationHallSeatService } from './reservationHallSeat/reservationHallSeat.service';
 import { ReservationGateway } from './reservations.gateway';
 
@@ -32,11 +32,14 @@ export class ReservationService {
             status: ReservationStatuses.Pending
         });
         try {
-            const existingReservation = await this.findOne({
-                session: { id: session.id },
-                reservation_status: { id: status.id },
-                profile_id: extendedReservationDto.profileId
-            }, ['session']);
+            const existingReservation = await this.findOne(
+                {
+                    session: { id: session.id },
+                    reservation_status: { id: status.id },
+                    profile_id: extendedReservationDto.profileId
+                },
+                ['session']
+            );
             return existingReservation;
         } catch (err) {
             const now = new Date();
@@ -71,11 +74,12 @@ export class ReservationService {
             ['session']
         );
 
-        for (let hallSeatId of updateReservationDto.hallSeatIds) {
+        for (let hallSeat of updateReservationDto.hallSeats) {
             await this.reservationHallSeatService.create({
                 reservation: updatedReservation,
-                hallSeatId: hallSeatId,
-                session: updatedReservation.session
+                hallSeatId: hallSeat.id,
+                session: updatedReservation.session,
+                location: hallSeat.location
             });
         }
         this.reservationGateway.emitReservation(updatedReservation.session.id);
@@ -86,8 +90,26 @@ export class ReservationService {
         return this.reservationRepository.findOne(where, relations);
     }
 
-    getUserReservations(profileId: string) {
-        return this.reservationRepository.find({ profile_id: profileId });
+    async getUserReservations(profileId: string, expired: boolean) {
+        const now = new Date();
+        const confirmedStatus = await this.reservationStatusService.findOne({
+            status: ReservationStatuses.Confirmed
+        });
+        return this.reservationRepository.findMany({
+            where: {
+                reservation_status: { id: confirmedStatus.id },
+                profile_id: profileId,
+                session: { date: expired ? LessThanOrEqual(now.toISOString().split('T')[0]) : MoreThanOrEqual(now.toISOString().split('T')[0]) }
+            },
+            relations: [
+                'session',
+                'session.movie',
+                'reservationHallSeats',
+            ],
+            order: {
+                updatedAt: 'DESC'
+            }
+        });
     }
 
     async deleteIfExpired(id: string) {

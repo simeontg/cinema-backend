@@ -67,7 +67,7 @@ export class HallService {
                         id: seat.id,
                         seat_type: hallSeat.seat.seat_type,
                         price: hallSeat.seat.price,
-                        name: `Row ${key} Seat ${idx + 1}`,
+                        location: `Row ${key} Seat ${idx + 1}`,
                         reserved
                     };
                 })
