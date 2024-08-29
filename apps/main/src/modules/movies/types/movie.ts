@@ -4,12 +4,12 @@ export interface MovieDetails {
     genre: string;
     releaseDate: Date;
     duration: number;
-    imageUrl: string;
+    imageUrl?: string;
     trended?: boolean;
 }
 
 export interface MovieSearchParams {
-    releaseType: 'current' | 'upcoming';
+    releaseType: 'current' | 'upcoming' | 'all';
     title: string;
     genre: string;
 }
