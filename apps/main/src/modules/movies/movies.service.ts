@@ -79,7 +79,9 @@ export class MoviesService {
         return this.moviesRepository.findOne({ title });
     }
 
-    remove(id: string) {
+    async remove(id: string) {
+        const movie = await this.moviesRepository.findOne({ id });
+        await this.uploaderService.delete(movie.imageUrl);
         return this.moviesRepository.findOneAndDelete({ id });
     }
 }
