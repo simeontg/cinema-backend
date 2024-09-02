@@ -6,14 +6,57 @@ import { FindOptionsWhere } from 'typeorm';
 import { MovieDetails, MovieSearchParams } from './types/movie';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { generateWhere } from './utils/generateWhere';
+import { UploaderService } from '@app/common/uploader/uploader.service';
+import { CreateMovieDto } from './dto/create-movie.dto';
 
 @Injectable()
 export class MoviesService {
-    constructor(private readonly moviesRepository: MoviesRepository) {}
+    constructor(
+        private readonly moviesRepository: MoviesRepository,
+        private readonly uploaderService: UploaderService
+    ) {}
 
-    create(movieData: MovieDetails): Promise<Movie> {
+    async create(createMovieDto: CreateMovieDto, image: Express.Multer.File): Promise<Movie> {
+        const imageUrl = await this.uploaderService.upload(image.originalname, image.buffer);
+        const movieData: MovieDetails = {
+            title: createMovieDto.title,
+            description: createMovieDto.description,
+            genre: createMovieDto.genre,
+            duration: +createMovieDto.duration,
+            releaseDate: createMovieDto.releaseDate,
+            trended: createMovieDto.trended,
+            imageUrl
+        };
+    
         const movie = new Movie(movieData);
         return this.moviesRepository.create(movie);
+    }
+
+    async update(
+        id: string,
+        updateMovieDto: UpdateMovieDto,
+        image: Express.Multer.File
+    ): Promise<Movie> {
+        const existingMovie = await this.moviesRepository.findOne({ id });
+
+        let imageUrl = existingMovie.imageUrl;
+
+        if (image) {
+            await this.uploaderService.delete(existingMovie.imageUrl);
+            imageUrl = await this.uploaderService.upload(image.originalname, image.buffer);
+        }
+
+        const updateData: MovieDetails = {
+            title: updateMovieDto.title,
+            description: updateMovieDto.description,
+            genre: updateMovieDto.genre,
+            duration: +updateMovieDto.duration,
+            releaseDate: updateMovieDto.releaseDate,
+            trended: updateMovieDto.trended,
+            imageUrl
+        };
+
+        return this.moviesRepository.findOneAndUpdate({ id }, updateData);
     }
 
     findAllPaginated(
@@ -34,10 +77,6 @@ export class MoviesService {
 
     findOneByTitle(title: string) {
         return this.moviesRepository.findOne({ title });
-    }
-
-    update(id: string, movieData: MovieDetails) {
-        return this.moviesRepository.findOneAndUpdate({ id }, movieData);
     }
 
     remove(id: string) {

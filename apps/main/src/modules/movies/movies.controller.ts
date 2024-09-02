@@ -26,14 +26,10 @@ import { Request } from 'express';
 import { JwtAuthGuard } from '@app/common';
 import { AdminGuard } from '@app/common/guards/AdminGuard';
 import { UpdateMovieDto } from './dto/update-movie.dto';
-import { MovieDetails } from './types/movie';
 
 @Controller('movies')
 export class MoviesController extends BaseController {
-    constructor(
-        private readonly moviesService: MoviesService,
-        private readonly uploaderService: UploaderService
-    ) {
+    constructor(private readonly moviesService: MoviesService) {
         super();
     }
 
@@ -44,16 +40,7 @@ export class MoviesController extends BaseController {
         @Body() createMovieDto: CreateMovieDto,
         @UploadedFile() image: Express.Multer.File
     ): Promise<MovieResponseDto> {
-        const imageUrl = await this.uploaderService.upload(image.originalname, image.buffer);
-        const movie = await this.moviesService.create({
-            title: createMovieDto.title,
-            description: createMovieDto.description,
-            genre: createMovieDto.genre,
-            duration: +createMovieDto.duration,
-            releaseDate: createMovieDto.releaseDate,
-            trended: createMovieDto.trended,
-            imageUrl
-        });
+        const movie = await this.moviesService.create(createMovieDto, image);
         return plainToInstance(MovieResponseDto, movie);
     }
 
@@ -100,26 +87,7 @@ export class MoviesController extends BaseController {
         @Body() updateMovieDto: UpdateMovieDto,
         @UploadedFile() image: Express.Multer.File
     ): Promise<MovieResponseDto> {
-        let imageUrl = '';
-
-        if (image) {
-            imageUrl = await this.uploaderService.upload(image.originalname, image.buffer);
-        }
-
-        const updateData: MovieDetails = {
-            title: updateMovieDto.title,
-            description: updateMovieDto.description,
-            genre: updateMovieDto.genre,
-            duration: +updateMovieDto.duration,
-            releaseDate: updateMovieDto.releaseDate,
-            trended: updateMovieDto.trended
-        };
-
-        if (imageUrl) {
-            updateData.imageUrl = imageUrl;
-        }
-
-        const movie = await this.moviesService.update(id, updateData);
+        const movie = await this.moviesService.update(id, updateMovieDto, image);
         return plainToInstance(MovieResponseDto, movie);
     }
 
