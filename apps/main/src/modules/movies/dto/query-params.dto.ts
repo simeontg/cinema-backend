@@ -20,7 +20,7 @@ export class GetPaginatedMoviesQueryParamsDto {
 
     @IsString()
     @IsOptional()
-    releaseType: 'current' | 'upcoming';
+    releaseType: 'current' | 'upcoming' | 'all';
 
     @IsString()
     @IsOptional()
