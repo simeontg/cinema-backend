@@ -14,7 +14,10 @@ export class Session extends AbstractEntity<Session> {
     date: string;
 
     @Column('time')
-    time: string;
+    startTime: string;
+
+    @Column('time')
+    endTime: string;
 
     @Column()
     ticket_price: number;

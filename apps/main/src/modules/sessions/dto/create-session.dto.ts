@@ -13,9 +13,9 @@ export class CreateSessionDto {
     @IsString()
     time: string;
 
-    @IsNotEmpty()
-    @IsNumber()
-    ticket_price: number;
+    // @IsNotEmpty()
+    // @IsNumber()
+    // ticket_price: number;
 
     @IsNotEmpty()
     @IsString()

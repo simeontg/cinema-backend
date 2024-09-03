@@ -26,11 +26,6 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
     async findOne(where: FindOptionsWhere<T>, relations?: string[]): Promise<T> {
         const entity = await this.entityRepository.findOne({ where, relations });
 
-        if (!entity) {
-            this.logger.warn('Entity not found with where', where);
-            throw new NotFoundException('Entity not found');
-        }
-
         return entity;
     }
 
@@ -45,8 +40,8 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
         return this.findOne(where, relations);
     }
 
-    async find(where: FindOptionsWhere<T>) {
-        return this.entityRepository.findBy(where);
+    async find(where: FindOptionsWhere<T> | FindOptionsWhere<T>[], relations?: string[]) {
+        return this.entityRepository.find({ where, relations });
     }
 
     async findMany(where: FindManyOptions<T>) {
@@ -64,3 +59,4 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
         return paginate<T>(this.entityRepository, options, searchOptions);
     }
 }
+
