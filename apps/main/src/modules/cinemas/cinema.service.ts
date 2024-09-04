@@ -4,6 +4,7 @@ import { CreateCinemaDto } from './dto/create-cinema.dto';
 import { CityService } from '../city/city.service';
 import { CinemasRepository } from './cinema.repository';
 import { Transactional } from 'typeorm-transactional';
+import { FindOptionsWhere } from 'typeorm';
 
 @Injectable()
 export class CinemaService {
@@ -20,10 +21,10 @@ export class CinemaService {
     }
 
     findAll() {
-        return this.cinemasRepository.find({});
+        return this.cinemasRepository.find({}, ['halls']);
     }
 
-    findOne(name: string) {
-        return this.cinemasRepository.findOne({ name });
+    findOne(where: FindOptionsWhere<Cinema>) {
+        return this.cinemasRepository.findOne(where);
     }
 }

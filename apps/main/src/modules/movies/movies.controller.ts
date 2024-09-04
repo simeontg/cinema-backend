@@ -13,7 +13,6 @@ import {
     Put
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UploaderService } from '@app/common/uploader/uploader.service';
 import { Pagination } from '@app/common/pagination';
 import { BaseController } from '@app/common/base/base.controller';
 import { MoviesService } from './movies.service';

@@ -21,7 +21,7 @@ export class HallService {
 
     @Transactional()
     async create(createHallDto: CreateHallDto) {
-        const cinema = await this.cinemaService.findOne(createHallDto.cinema);
+        const cinema = await this.cinemaService.findOne({ name: createHallDto.cinema });
         const hall = new Hall({
             hall_name: createHallDto.name,
             hall_plan: createHallDto.plan,
@@ -42,12 +42,12 @@ export class HallService {
     async getMappedHallPlan(hallId: string, sessionId: string) {
         const hall = await this.findOne({ id: hallId });
         const hallPlan = await this.mapHallPlan(hall.hall_plan, sessionId);
-        return hallPlan
+        return hallPlan;
     }
 
     async mapHallPlan(hallPlan: HallPlan, sessionId: string): Promise<HallPlanResponseDto> {
         const mappedHallPlan: HallPlanResponseDto = {};
-    
+
         for (const key in hallPlan) {
             mappedHallPlan[key] = await Promise.all(
                 hallPlan[key].map(async (seat, idx) => {
@@ -62,7 +62,7 @@ export class HallService {
                     } catch (err) {
                         // haven't found the seat in reservationHallSeat -> continue with reserved = false
                     }
-    
+
                     return {
                         id: seat.id,
                         seat_type: hallSeat.seat.seat_type,
