@@ -5,6 +5,7 @@ import { CityService } from '../city/city.service';
 import { CinemasRepository } from './cinema.repository';
 import { Transactional } from 'typeorm-transactional';
 import { FindOptionsWhere } from 'typeorm';
+import { UpdateCinemaDto } from './dto/update-cinema.dto';
 
 @Injectable()
 export class CinemaService {
@@ -15,9 +16,23 @@ export class CinemaService {
 
     @Transactional()
     async create(createCinemaDto: CreateCinemaDto): Promise<Cinema> {
-        const city = await this.cityService.findOne({ name: createCinemaDto.city });
+        let city = await this.cityService.findOne({ name: createCinemaDto.city });
+        if (!city) {
+            city = await this.cityService.create(createCinemaDto.city);
+        }
         const cinema = new Cinema({ name: createCinemaDto.name, city });
         return this.cinemasRepository.create(cinema);
+    }
+
+    async update(id: string, updateCinemaDto: UpdateCinemaDto) {
+        let city = await this.cityService.findOne({ name: updateCinemaDto.city });
+        if (!city) {
+            city = await this.cityService.create(updateCinemaDto.city);
+        }
+        return this.cinemasRepository.findOneAndUpdate(
+            { id },
+            { name: updateCinemaDto.name, city }
+        );
     }
 
     findAll() {
@@ -26,5 +41,9 @@ export class CinemaService {
 
     findOne(where: FindOptionsWhere<Cinema>) {
         return this.cinemasRepository.findOne(where);
+    }
+
+    remove(id: string) {
+        return this.cinemasRepository.findOneAndDelete({ id });
     }
 }
