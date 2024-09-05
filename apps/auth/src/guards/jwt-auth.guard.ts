@@ -1,6 +1,7 @@
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { RpcException } from '@nestjs/microservices';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt } from 'passport-jwt';
@@ -12,6 +13,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
+        const contextType = context.getType();
         const request = context.switchToHttp().getRequest();
         const response = context.switchToHttp().getResponse();
         const token = this.extractTokenFromRequest(request);
@@ -31,7 +33,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         } catch (error) {
             if (error instanceof TokenExpiredError) {
                 const { userId } = jwtService.decode(token);
-                response.status(401).json({ msg: 'Token has expired', userId });
+                if (contextType === 'rpc') {
+                    throw new RpcException({
+                        message: 'Token has expired',
+                        userId,
+                    });
+                } else {
+                    response.status(401).json({ msg: 'Token has expired', userId });
+                }
             } else {
                 response.clearCookie('Authentication').status(401).json({ msg: 'Invalid token' });
             }

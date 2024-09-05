@@ -9,11 +9,14 @@ import { MoviesModule } from '../movies/movies.module';
 import { SessionsRepository } from './session.repository';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SessionHallSeat } from './sessionHallSeat/entities/sessionHallSeat.entity';
+import { SessionHallSeatService } from './sessionHallSeat/sessionHallSeat.service';
+import { SessionHallSeatRepository } from './sessionHallSeat/sessionHallSeat.repository';
 
 @Module({
     imports: [
         DatabaseModule,
-        DatabaseModule.forFeature([Session]),
+        DatabaseModule.forFeature([Session, SessionHallSeat]),
         LoggerModule,
         HallModule,
         CinemaModule,
@@ -34,7 +37,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         ])
     ],
     controllers: [SessionController],
-    providers: [SessionService, SessionsRepository],
+    providers: [SessionService, SessionsRepository, SessionHallSeatService, SessionHallSeatRepository],
     exports: [SessionService]
 })
 export class SessionModule {}

@@ -29,6 +29,6 @@ export class Movie extends AbstractEntity<Movie> {
     })
     trended: boolean;
 
-    @OneToMany(() => Session, (session) => session.movie, { cascade: ['remove'] })
+    @OneToMany(() => Session, (session) => session.movie, { cascade: true })
     sessions: Session[];
 }

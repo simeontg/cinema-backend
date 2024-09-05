@@ -34,8 +34,8 @@ export class HallService {
         return this.hallsRepository.find({});
     }
 
-    findOne(where: FindOptionsWhere<Hall>) {
-        return this.hallsRepository.findOne(where);
+    findOne(where: FindOptionsWhere<Hall>, relations?: string[]) {
+        return this.hallsRepository.findOne(where, relations);
     }
 
     @Transactional()
@@ -51,22 +51,20 @@ export class HallService {
         for (const key in hallPlan) {
             mappedHallPlan[key] = await Promise.all(
                 hallPlan[key].map(async (seat, idx) => {
-                    const hallSeat = await this.hallSeatService.findOne({ id: seat.id });
-                    let reserved = false;
-                    try {
-                        await this.reservationHallSeatService.findOne({
-                            hallSeat: { id: hallSeat.id },
-                            session: { id: sessionId }
-                        });
+                    const hallSeat = await this.hallSeatService.findOne({ id: seat.id }, ['sessionHallSeats', 'sessionHallSeats.session']);
+                    const sessionHallSeat = hallSeat.sessionHallSeats.find((sessionHallSeat) => sessionHallSeat.session.id === sessionId);
+                    let reserved = false;   
+                    const reservedSeat = await this.reservationHallSeatService.findOne({
+                        hallSeat: { id: hallSeat.id },
+                        session: { id: sessionId }
+                    });
+                    if (reservedSeat) {
                         reserved = true;
-                    } catch (err) {
-                        // haven't found the seat in reservationHallSeat -> continue with reserved = false
                     }
-
                     return {
                         id: seat.id,
                         seat_type: hallSeat.seat.seat_type,
-                        price: hallSeat.seat.price,
+                        price: sessionHallSeat.price,
                         location: `Row ${key} Seat ${idx + 1}`,
                         reserved
                     };
@@ -74,5 +72,11 @@ export class HallService {
             );
         }
         return mappedHallPlan;
+    }
+
+    async getTypesOfSeats(hallId: string) {
+        const seats = await this.hallSeatService.findMany({ hall: { id: hallId } });
+        const uniqueSeatTypes = [...new Set(seats.map((seat) => seat.seat.seat_type))];
+        return uniqueSeatTypes;
     }
 }

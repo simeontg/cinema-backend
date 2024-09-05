@@ -31,4 +31,10 @@ export class HallController {
         const hallPlan = await this.hallService.getMappedHallPlan(id, sessionId);
         return plainToInstance(HallPlanResponseDto, hallPlan);
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/:id/seatTypes')
+    async getSeatTypes(@Param() { id }: { id: string }) {
+        return this.hallService.getTypesOfSeats(id);
+    }
 }

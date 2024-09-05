@@ -31,35 +31,32 @@ export class ReservationService {
         const status = await this.reservationStatusService.findOne({
             status: ReservationStatuses.Pending
         });
-        try {
-            const existingReservation = await this.findOne(
-                {
-                    session: { id: session.id },
-                    reservation_status: { id: status.id },
-                    profile_id: extendedReservationDto.profileId
-                },
-                ['session']
-            );
+        const existingReservation = await this.findOne(
+            {
+                session: { id: session.id },
+                reservation_status: { id: status.id },
+                profile_id: extendedReservationDto.profileId
+            },
+            ['session']
+        );
+
+        if (existingReservation) {
             return existingReservation;
-        } catch (err) {
-            const now = new Date();
-            const reservation = new Reservation({
-                total_price: extendedReservationDto.total_price,
-                profile_id: extendedReservationDto.profileId,
-                session: session,
-                date: now,
-                expires_at: new Date(now.getTime() + RESERVATION_EXPIRATION_TIME),
-                reservation_status: status
-            });
-            const savedReservation = await this.reservationRepository.create(reservation);
-            const { id } = savedReservation;
-            await this.reservationQueue.add(
-                'expire',
-                { id },
-                { delay: RESERVATION_EXPIRATION_TIME }
-            );
-            return this.findOne({ id: savedReservation.id }, ['session']);
-        }
+        } 
+        
+        const now = new Date();
+        const reservation = new Reservation({
+            total_price: extendedReservationDto.total_price,
+            profile_id: extendedReservationDto.profileId,
+            session: session,
+            date: now,
+            expires_at: new Date(now.getTime() + RESERVATION_EXPIRATION_TIME),
+            reservation_status: status
+        });
+        const savedReservation = await this.reservationRepository.create(reservation);
+        const { id } = savedReservation;
+        await this.reservationQueue.add('expire', { id }, { delay: RESERVATION_EXPIRATION_TIME });
+        return this.findOne({ id: savedReservation.id }, ['session']);
     }
 
     @Transactional()
@@ -99,13 +96,13 @@ export class ReservationService {
             where: {
                 reservation_status: { id: confirmedStatus.id },
                 profile_id: profileId,
-                session: { date: expired ? LessThanOrEqual(now.toISOString().split('T')[0]) : MoreThanOrEqual(now.toISOString().split('T')[0]) }
+                session: {
+                    date: expired
+                        ? LessThanOrEqual(now.toISOString().split('T')[0])
+                        : MoreThanOrEqual(now.toISOString().split('T')[0])
+                }
             },
-            relations: [
-                'session',
-                'session.movie',
-                'reservationHallSeats',
-            ],
+            relations: ['session', 'session.movie', 'reservationHallSeats'],
             order: {
                 updatedAt: 'DESC'
             }

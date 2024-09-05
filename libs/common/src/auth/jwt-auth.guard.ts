@@ -2,7 +2,6 @@ import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedExceptio
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { AUTH_SERVICE } from '../constants/services';
 import { ClientProxy } from '@nestjs/microservices';
-import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -23,8 +22,13 @@ export class JwtAuthGuard implements CanActivate {
                 context.switchToHttp().getRequest().user = res;
             }),
             map(() => true),
-            catchError(() => {
-                response.clearCookie('Authentication').status(401).json({ msg: 'Invalid token' });
+            catchError((err) => {
+                if (err.message == 'Token has expired') {
+                    const { userId } = err;
+                    response.status(401).json({ msg: 'Token has expired', userId });
+                } else {
+                    response.clearCookie('Authentication').status(401).json({ msg: 'Invalid token' });
+                }
                 return of(false);
             })
         );
