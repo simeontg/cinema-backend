@@ -3,6 +3,7 @@ import { AbstractEntity } from '@app/common';
 import { Hall } from '../../entities/hall.entity';
 import { Seat } from '../../entities/seat.entity';
 import { ReservationHallSeat } from '../../../reservations/reservationHallSeat/entities/reservationHallSeat.entity';
+import { SessionHallSeat } from '../../../sessions/sessionHallSeat/entities/sessionHallSeat.entity';
 
 @Entity()
 export class HallSeat extends AbstractEntity<HallSeat> {
@@ -16,4 +17,7 @@ export class HallSeat extends AbstractEntity<HallSeat> {
 
     @OneToMany(() => ReservationHallSeat, (reservationHallSeat) => reservationHallSeat.hallSeat)
     reservationHallSeats?: ReservationHallSeat[];
+
+    @OneToMany(() => SessionHallSeat, (sessionHallSeat) => sessionHallSeat.hallSeat)
+    sessionHallSeats: SessionHallSeat[];
 }

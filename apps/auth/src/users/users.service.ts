@@ -21,7 +21,6 @@ export class UsersService {
     @Transactional()
     async create(createUserDto: CreateUserDto, profile: Profile): Promise<User> {
         await this.validateCreateUserDto(createUserDto);
-
         const user = new User({
             email: createUserDto.email
         });
@@ -40,18 +39,19 @@ export class UsersService {
     }
 
     private async validateCreateUserDto(createUserDto: CreateUserDto) {
-        try {
-            await this.usersRepository.findOne({ email: createUserDto.email });
-        } catch (err) {
-            return;
+        const existingUser = await this.usersRepository.findOne({ email: createUserDto.email });
+        if (existingUser) {
+            throw new UnauthorizedException('Email already exists');
         }
-
-        //returned this here as it was being consumed immediately by the catch block
-        throw new UnprocessableEntityException('Email already exists');
     }
 
     async verifyUser(email: string, password: string): Promise<User> {
         const user = await this.usersRepository.findOne({ email });
+
+        if (!user) {
+            throw new UnauthorizedException('Credentials are not valid.');
+        }
+
         const passwordIsValid = await bcrypt.compare(password, user.password);
 
         if (!passwordIsValid) {

@@ -1,4 +1,9 @@
-import { IsNotEmpty, IsString, IsDateString, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsString, IsDateString, IsObject, ValidateNested } from 'class-validator';
+
+class SeatPricesDto {
+    [key: string]: number;
+}
 
 export class CreateSessionDto {
     @IsNotEmpty()
@@ -13,10 +18,6 @@ export class CreateSessionDto {
     @IsString()
     time: string;
 
-    // @IsNotEmpty()
-    // @IsNumber()
-    // ticket_price: number;
-
     @IsNotEmpty()
     @IsString()
     cinema: string;
@@ -24,4 +25,8 @@ export class CreateSessionDto {
     @IsNotEmpty()
     @IsString()
     hall: string;
+
+    @IsNotEmpty()
+    @IsObject()
+    seatPrices: SeatPricesDto;
 }

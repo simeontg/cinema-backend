@@ -8,6 +8,7 @@ import { SessionsRepository } from './session.repository';
 import { Transactional } from 'typeorm-transactional';
 import { Between, FindOptionsWhere, Not } from 'typeorm';
 import { UpdateSessionDto } from './dto/update-session.dto';
+import { SessionHallSeatService } from './sessionHallSeat/sessionHallSeat.service';
 import * as moment from 'moment';
 
 @Injectable()
@@ -16,15 +17,15 @@ export class SessionService {
         private readonly movieService: MoviesService,
         private readonly hallService: HallService,
         private readonly cinemaService: CinemaService,
+        private readonly sessionHallSeatService: SessionHallSeatService,
         private readonly sessionsRepository: SessionsRepository
     ) {}
 
     @Transactional()
     async create(createSessionDto: CreateSessionDto) {
         const cinema = await this.cinemaService.findOne({ id: createSessionDto.cinema });
-        const hall = await this.hallService.findOne({ id: createSessionDto.hall });
+        const hall = await this.hallService.findOne({ id: createSessionDto.hall }, ['hallSeats']);
         const movie = await this.movieService.findOne(createSessionDto.movie);
-
         if (hall.cinema.name !== cinema.name) {
             throw new Error('No such hall in cinema');
         }
@@ -62,19 +63,28 @@ export class SessionService {
             date: createSessionDto.date,
             startTime: startTimeStr,
             endTime: endTimeStr,
-            ticket_price: 15,
             cinema,
             hall,
             movie
         });
 
-        return this.sessionsRepository.create(session);
+        const createdSession = await this.sessionsRepository.create(session);
+
+        hall.hallSeats.forEach((hallSeat) => {
+            this.sessionHallSeatService.create(
+                hallSeat,
+                createdSession,
+                Number(createSessionDto.seatPrices[hallSeat.seat.seat_type])
+            );
+        });
+
+        return createdSession;
     }
 
     @Transactional()
     async update(id: string, updateSessionDto: UpdateSessionDto) {
         const cinema = await this.cinemaService.findOne({ id: updateSessionDto.cinema });
-        const hall = await this.hallService.findOne({ id: updateSessionDto.hall });
+        const hall = await this.hallService.findOne({ id: updateSessionDto.hall }, ['hallSeats']);
         const movie = await this.movieService.findOne(updateSessionDto.movie);
 
         if (hall.cinema.name !== cinema.name) {
@@ -116,21 +126,46 @@ export class SessionService {
             date: updateSessionDto.date,
             startTime: newStartTimeStr,
             endTime: newEndTimeStr,
-            ticket_price: 15,
             cinema,
             hall,
             movie
         };
+        const updatedSession = await this.sessionsRepository.findOneAndUpdate(
+            { id },
+            updateSessionData
+        );
 
-        return this.sessionsRepository.findOneAndUpdate({ id }, updateSessionData);
+        hall.hallSeats.forEach((hallSeat) => {
+            this.sessionHallSeatService.update(hallSeat.id, {
+                price: Number(updateSessionDto.seatPrices[hallSeat.seat.seat_type])
+            });
+        });
+
+        return updatedSession;
     }
 
-    findMany(where: FindOptionsWhere<Session>) {
-        return this.sessionsRepository.findMany({
+    async findMany(where: FindOptionsWhere<Session>) {
+        const sessions = await this.sessionsRepository.findMany({
             where,
-            relations: ['movie'],
+            relations: ['movie', 'sessionHallSeats', 'sessionHallSeats.hallSeat'],
             order: { date: 'DESC' }
         });
+        const sessionWithSeatPrices = sessions.map((session) => {
+            const seatPrices = session.sessionHallSeats.reduce((acc, sessionHallSeat) => {
+                const seatType = sessionHallSeat.hallSeat.seat.seat_type;
+                if (!acc[seatType]) {
+                    acc[seatType] = sessionHallSeat.price;
+                }
+                return acc;
+            }, {});
+
+            return {
+                ...session,
+                seatPrices
+            };
+        });
+
+        return sessionWithSeatPrices;
     }
 
     findOne(id: string, relations?: string[]) {

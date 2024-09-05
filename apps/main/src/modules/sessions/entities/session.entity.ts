@@ -4,6 +4,7 @@ import { Hall } from '../../hall/entities/hall.entity';
 import { AbstractEntity } from '@app/common';
 import { Movie } from '../../movies/entities/movie.entity';
 import { ReservationHallSeat } from '../../reservations/reservationHallSeat/entities/reservationHallSeat.entity';
+import { SessionHallSeat } from '../sessionHallSeat/entities/sessionHallSeat.entity';
 
 @Entity()
 export class Session extends AbstractEntity<Session> {
@@ -19,9 +20,6 @@ export class Session extends AbstractEntity<Session> {
     @Column('time')
     endTime: string;
 
-    @Column()
-    ticket_price: number;
-
     @ManyToOne(() => Cinema, (cinema) => cinema.sessions, {
         eager: true
     })
@@ -30,6 +28,9 @@ export class Session extends AbstractEntity<Session> {
     @ManyToOne(() => Hall, (hall) => hall.sessions, { eager: true })
     hall: Hall;
 
-    @OneToMany(() => ReservationHallSeat, (reservationHallSeat) => reservationHallSeat.session)
+    @OneToMany(() => ReservationHallSeat, (reservationHallSeat) => reservationHallSeat.session, { cascade: ['remove'] })
     reservationHallSeats: ReservationHallSeat[];
+
+    @OneToMany(() => SessionHallSeat, (sessionHallSeat) => sessionHallSeat.session, { cascade: ['remove'] })
+    sessionHallSeats: SessionHallSeat[];
 }

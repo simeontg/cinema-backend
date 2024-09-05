@@ -7,9 +7,6 @@ export class Seat extends AbstractEntity<Seat> {
     @Column()
     seat_type: string;
 
-    @Column()
-    price: number;
-
     @OneToMany(() => HallSeat, (hallSeat) => hallSeat.seat)
     hallSeats: HallSeat[];
 }
