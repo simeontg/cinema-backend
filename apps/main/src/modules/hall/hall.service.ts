@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateHallDto } from './dto/create-hall.dto';
 import { CinemaService } from '../cinemas/cinema.service';
 import { Hall } from './entities/hall.entity';
@@ -9,6 +9,7 @@ import { HallSeatService } from './hallSeat/hallSeat.service';
 import { ReservationHallSeatService } from '../reservations/reservationHallSeat/reservationHallSeat.service';
 import { HallPlan } from './types/hallPlan';
 import { HallPlanResponseDto } from './dto/hallPlan-response.dto';
+import { UpdateHallDto } from './dto/update-hall.dto';
 
 @Injectable()
 export class HallService {
@@ -21,13 +22,88 @@ export class HallService {
 
     @Transactional()
     async create(createHallDto: CreateHallDto) {
-        const cinema = await this.cinemaService.findOne({ name: createHallDto.cinema });
+        const cinema = await this.cinemaService.findOne({ id: createHallDto.cinemaId });
         const hall = new Hall({
-            hall_name: createHallDto.name,
-            hall_plan: createHallDto.plan,
+            hall_name: createHallDto.hallName,
             cinema
         });
-        return this.hallsRepository.create(hall);
+        const savedHall = await this.hallsRepository.create(hall);
+
+        const hallPlan: { [key: string]: { id: string }[] } = {};
+
+        await Promise.all(
+            createHallDto.hallPlan.map(async (row, index) => {
+                const rowPromises = row.seats.map(async (seat) => {
+                    const seatPromises = [];
+                    for (let i = 0; i < seat.seatCount; i++) {
+                        const hallSeat = await this.hallSeatService.create(seat, savedHall);
+                        seatPromises.push({ id: hallSeat.id });
+                    }
+                    return seatPromises;
+                });
+
+                const seats = (await Promise.all(rowPromises)).flat();
+                hallPlan[index + 1] = seats;
+            })
+        );
+
+        const hallWithHallPlan = await this.hallsRepository.findOneAndUpdate(
+            { id: savedHall.id },
+            {
+                hall_plan: hallPlan
+            }
+        );
+
+        return hallWithHallPlan;
+    }
+
+    @Transactional()
+    async update(id: string, updateHallDto: UpdateHallDto) {
+        const cinema = await this.cinemaService.findOne({ id: updateHallDto.cinemaId });
+        const hall = await this.hallsRepository.findOne({ id: id }, ['sessions']);
+
+        if (hall.sessions.some((session) => new Date(session.date) > new Date())) {
+            throw new UnauthorizedException('There are upcoming sessions in this hall.');
+        }
+
+        const currentHallSeats = await this.hallSeatService.findMany({ hall: { id: hall.id } }, [
+            'reservationHallSeats'
+        ]);
+
+        for (let hallSeat of currentHallSeats) {
+            if (hallSeat.reservationHallSeats.length === 0) {
+                await this.hallSeatService.delete(hallSeat.id);
+            }
+        }
+
+        const hallPlan: { [key: string]: { id: string }[] } = {};
+
+        await Promise.all(
+            updateHallDto.hallPlan.map(async (row, index) => {
+                const rowPromises = row.seats.map(async (seat) => {
+                    const seatPromises = [];
+                    for (let i = 0; i < seat.seatCount; i++) {
+                        const hallSeat = await this.hallSeatService.create(seat, hall);
+                        seatPromises.push({ id: hallSeat.id });
+                    }
+                    return seatPromises;
+                });
+
+                const seats = (await Promise.all(rowPromises)).flat();
+                hallPlan[index + 1] = seats;
+            })
+        );
+
+        const hallWithHallPlan = await this.hallsRepository.findOneAndUpdate(
+            { id: hall.id },
+            {
+                hall_plan: hallPlan,
+                cinema: cinema,
+                hall_name: updateHallDto.hallName
+            }
+        );
+
+        return hallWithHallPlan;
     }
 
     findAll() {
@@ -45,26 +121,41 @@ export class HallService {
         return hallPlan;
     }
 
-    async mapHallPlan(hallPlan: HallPlan, sessionId: string): Promise<HallPlanResponseDto> {
+    async mapHallPlan(hallPlan: HallPlan, sessionId?: string): Promise<HallPlanResponseDto> {
         const mappedHallPlan: HallPlanResponseDto = {};
 
         for (const key in hallPlan) {
             mappedHallPlan[key] = await Promise.all(
                 hallPlan[key].map(async (seat, idx) => {
-                    const hallSeat = await this.hallSeatService.findOne({ id: seat.id }, ['sessionHallSeats', 'sessionHallSeats.session']);
-                    const sessionHallSeat = hallSeat.sessionHallSeats.find((sessionHallSeat) => sessionHallSeat.session.id === sessionId);
-                    let reserved = false;   
-                    const reservedSeat = await this.reservationHallSeatService.findOne({
-                        hallSeat: { id: hallSeat.id },
-                        session: { id: sessionId }
-                    });
-                    if (reservedSeat) {
-                        reserved = true;
+                    const hallSeat = await this.hallSeatService.findOne({ id: seat.id }, [
+                        'sessionHallSeats',
+                        'sessionHallSeats.session'
+                    ]);
+
+                    // Find the sessionHallSeat only if sessionId is provided
+                    let sessionHallSeat = null;
+                    if (sessionId) {
+                        sessionHallSeat = hallSeat.sessionHallSeats.find(
+                            (sessionHallSeat) => sessionHallSeat.session.id === sessionId
+                        );
                     }
+
+                    let reserved = false;
+                    // Only check for reserved seats if sessionId is provided
+                    if (sessionId) {
+                        const reservedSeat = await this.reservationHallSeatService.findOne({
+                            hallSeat: { id: hallSeat.id },
+                            session: { id: sessionId }
+                        });
+                        if (reservedSeat) {
+                            reserved = true;
+                        }
+                    }
+
                     return {
                         id: seat.id,
                         seat_type: hallSeat.seat.seat_type,
-                        price: sessionHallSeat.price,
+                        price: sessionHallSeat ? sessionHallSeat.price : null,
                         location: `Row ${key} Seat ${idx + 1}`,
                         reserved
                     };
@@ -78,5 +169,9 @@ export class HallService {
         const seats = await this.hallSeatService.findMany({ hall: { id: hallId } });
         const uniqueSeatTypes = [...new Set(seats.map((seat) => seat.seat.seat_type))];
         return uniqueSeatTypes;
+    }
+
+    delete(id: string) {
+        return this.hallsRepository.findOneAndDelete({ id });
     }
 }

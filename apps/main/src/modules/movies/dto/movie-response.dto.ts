@@ -30,4 +30,6 @@ export class MovieResponseDto {
 
     @Expose()
     updatedAt: Date
+
+    hasSessions: boolean;
 }

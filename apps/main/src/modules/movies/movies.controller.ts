@@ -54,14 +54,22 @@ export class MoviesController extends BaseController {
             {
                 page,
                 limit,
-                route: url
+                route: url,
             },
             { releaseType, title, genre }
         );
 
         const mappedResponse: Pagination<MovieResponseDto> = {
             ...result,
-            items: plainToInstance(MovieResponseDto, result.items)
+            items: plainToInstance(
+                MovieResponseDto,
+                result.items.map((movie) => {
+                    return {
+                        ...movie,
+                        hasSessions: movie.sessions.length > 0
+                    };
+                })
+            ),
         };
 
         return mappedResponse;

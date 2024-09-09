@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { AbstractEntity } from '@app/common';
 import { Hall } from '../../entities/hall.entity';
-import { Seat } from '../../entities/seat.entity';
+import { Seat } from '../../seat/entities/seat.entity';
 import { ReservationHallSeat } from '../../../reservations/reservationHallSeat/entities/reservationHallSeat.entity';
 import { SessionHallSeat } from '../../../sessions/sessionHallSeat/entities/sessionHallSeat.entity';
 

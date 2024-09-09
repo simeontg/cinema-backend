@@ -7,14 +7,13 @@ import { HallsRepository } from './hall.repository';
 import { CinemaModule } from '../cinemas/cinema.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Seat } from './entities/seat.entity';
 import { HallSeatModule } from './hallSeat/hallSeat.module';
 import { ReservationHallSeatModule } from '../reservations/reservationHallSeat/reservationHallSeat.module';
 
 @Module({
     imports: [
         DatabaseModule,
-        DatabaseModule.forFeature([Hall, Seat]),
+        DatabaseModule.forFeature([Hall]),
         LoggerModule,
         CinemaModule,
         HallSeatModule,

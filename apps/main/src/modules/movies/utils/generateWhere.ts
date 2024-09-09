@@ -7,9 +7,11 @@ export const generateWhere = (params: MovieSearchParams): FindOptionsWhere<Movie
     const currentDate = new Date();
 
     if (params.releaseType) {
-        params.releaseType === 'current' && (where.sessions = {
-                  date: MoreThanOrEqual(currentDate.toISOString().split('T')[0])
-              })
+        params.releaseType === 'current' &&
+            ((where.sessions = {
+                date: MoreThanOrEqual(currentDate.toISOString().split('T')[0])
+            }),
+            where.releaseDate = LessThanOrEqual(currentDate));
         params.releaseType === 'upcoming' && (where.releaseDate = MoreThan(currentDate));
     }
 

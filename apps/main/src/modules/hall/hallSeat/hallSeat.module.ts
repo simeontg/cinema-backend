@@ -5,11 +5,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HallSeat } from './entities/hallSeat.entity';
 import { HallSeatRepository } from './hallSeat.repository';
 import { HallSeatService } from './hallSeat.service';
+import { Seat } from '../seat/entities/seat.entity';
+import { SeatService } from '../seat/seat.service';
+import { SeatRepository } from '../seat/seat.repository';
 
 @Module({
     imports: [
         DatabaseModule,
-        DatabaseModule.forFeature([HallSeat]),
+        DatabaseModule.forFeature([HallSeat, Seat]),
         LoggerModule,
         ClientsModule.registerAsync([
             {
@@ -26,7 +29,7 @@ import { HallSeatService } from './hallSeat.service';
             }
         ])
     ],
-    providers: [HallSeatRepository, HallSeatService],
+    providers: [HallSeatRepository, HallSeatService, SeatService, SeatRepository],
     exports: [HallSeatService]
 })
 export class HallSeatModule {}

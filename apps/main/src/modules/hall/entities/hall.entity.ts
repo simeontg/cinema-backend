@@ -17,12 +17,12 @@ export class Hall extends AbstractEntity<Hall> {
     @Column()
     hall_name: string;
 
-    @Column('jsonb')
+    @Column('jsonb', { nullable: true })
     hall_plan: any;
 
     @OneToMany(() => Session, (session) => session.hall)
     sessions: Session[];
 
-    @OneToMany(() => HallSeat, (hallSeat) => hallSeat.hall)
+    @OneToMany(() => HallSeat, (hallSeat) => hallSeat.hall, { cascade: ['remove'] })
     hallSeats?: HallSeat[];
 }
