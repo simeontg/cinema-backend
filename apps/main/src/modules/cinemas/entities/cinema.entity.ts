@@ -11,10 +11,10 @@ export class Cinema extends AbstractEntity<Cinema> {
     @Column()
     name: string;
 
-    @OneToMany(() => Hall, (hall) => hall.cinema)
+    @OneToMany(() => Hall, (hall) => hall.cinema, { cascade: ['remove'] })
     halls: Hall[];
 
-    @OneToMany(() => Session, (session) => session.cinema)
+    @OneToMany(() => Session, (session) => session.cinema, { cascade: ['remove'] })
     sessions: Session[];
 
     @ManyToOne(() => City, (city) => city.cinemas, {

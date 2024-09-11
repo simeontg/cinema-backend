@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { HallService } from '../hall/hall.service';
 import { MoviesService } from '../movies/movies.service';
@@ -89,6 +89,14 @@ export class SessionService {
 
         if (hall.cinema.name !== cinema.name) {
             throw new Error('No such hall in cinema');
+        }
+
+        const session = await this.sessionsRepository.findOne({ id }, ['reservationHallSeats']);
+
+        if (session.reservationHallSeats.length > 0) {
+            throw new BadRequestException(
+                'Session has active reservations and cannot be modified.'
+            );
         }
 
         const newStartTime = moment(

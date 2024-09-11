@@ -1,16 +1,31 @@
-import { IsNotEmpty, IsString, IsObject } from 'class-validator';
-import { HallPlan } from '../types/hallPlan';
+import { IsNotEmpty, IsString, IsNumber, ValidateNested, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
+
+class SeatDto {
+  @IsString()
+  seatType: string;
+
+  @IsNumber()
+  seatCount: number;
+}
+
+class RowDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SeatDto)
+  seats: SeatDto[];
+}
+
 
 export class CreateHallDto {
   @IsNotEmpty()
   @IsString()
-  cinema: string;
+  cinemaId: string;
 
   @IsNotEmpty()
   @IsString()
-  name: string;
+  hallName: string;
 
   @IsNotEmpty()
-  @IsObject()
-  plan: HallPlan;
+  hallPlan: RowDto[];
 }

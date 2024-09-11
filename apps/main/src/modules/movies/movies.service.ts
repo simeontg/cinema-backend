@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { MoviesRepository } from './movies.repository';
 import { Movie } from './entities/movie.entity';
@@ -27,6 +27,12 @@ export class MoviesService {
             trended: createMovieDto.trended,
             imageUrl
         };
+
+        const movieWithSameTitle = await this.moviesRepository.findOne({ title: movieData.title });
+
+        if (movieWithSameTitle) { 
+            throw new BadRequestException('Movie with same name already exists');
+        }
     
         const movie = new Movie(movieData);
         return this.moviesRepository.create(movie);
@@ -64,7 +70,7 @@ export class MoviesService {
         params: MovieSearchParams
     ): Promise<Pagination<Movie>> {
         const where = generateWhere(params);
-        return this.moviesRepository.paginate(options, { where });
+        return this.moviesRepository.paginate(options, { where, relations: ['sessions'] });
     }
 
     find(where: FindOptionsWhere<Movie>): Promise<Movie[]> {
@@ -81,7 +87,8 @@ export class MoviesService {
 
     async remove(id: string) {
         const movie = await this.moviesRepository.findOne({ id });
+        const removedMovie = await this.moviesRepository.findOneAndDelete({ id });
         await this.uploaderService.delete(movie.imageUrl);
-        return this.moviesRepository.findOneAndDelete({ id });
+        return removedMovie;
     }
 }

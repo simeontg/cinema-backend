@@ -8,7 +8,7 @@ import { SessionHallSeat } from '../sessionHallSeat/entities/sessionHallSeat.ent
 
 @Entity()
 export class Session extends AbstractEntity<Session> {
-    @ManyToOne(() => Movie, (movie) => movie.sessions)
+    @ManyToOne(() => Movie, (movie) => movie.sessions, { onDelete: 'CASCADE' })
     movie: Movie;
 
     @Column('date')
