@@ -87,7 +87,8 @@ export class MoviesService {
 
     async remove(id: string) {
         const movie = await this.moviesRepository.findOne({ id });
+        const removedMovie = await this.moviesRepository.findOneAndDelete({ id });
         await this.uploaderService.delete(movie.imageUrl);
-        return this.moviesRepository.findOneAndDelete({ id });
+        return removedMovie;
     }
 }

@@ -132,16 +132,9 @@ export class HallService {
                         'sessionHallSeats.session'
                     ]);
 
-                    // Find the sessionHallSeat only if sessionId is provided
                     let sessionHallSeat = null;
-                    if (sessionId) {
-                        sessionHallSeat = hallSeat.sessionHallSeats.find(
-                            (sessionHallSeat) => sessionHallSeat.session.id === sessionId
-                        );
-                    }
-
                     let reserved = false;
-                    // Only check for reserved seats if sessionId is provided
+                    
                     if (sessionId) {
                         const reservedSeat = await this.reservationHallSeatService.findOne({
                             hallSeat: { id: hallSeat.id },
@@ -150,6 +143,10 @@ export class HallService {
                         if (reservedSeat) {
                             reserved = true;
                         }
+
+                        sessionHallSeat = hallSeat.sessionHallSeats.find(
+                            (sessionHallSeat) => sessionHallSeat.session.id === sessionId
+                        );
                     }
 
                     return {

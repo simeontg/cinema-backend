@@ -47,7 +47,7 @@ export class HallController {
 
     @UseGuards(JwtAuthGuard, AdminGuard)
     @Delete(':id')
-    delete(@Param('id') id: string) {
+    async delete(@Param('id') id: string) {
         return this.hallService.delete(id);
     }
 }
