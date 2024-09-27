@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AUTH_SERVICE, DatabaseModule, LoggerModule } from '@app/common';
+import { AUTH_SERVICE, DatabaseModule, LoggerModule, NOTIFICATIONS_SERVICE } from '@app/common';
 import { Reservation } from './entities/reservation.entity';
 import { ReservationRepository } from './reservations.repository';
 import { ReservationService } from './reservations.service';
@@ -18,6 +18,7 @@ import { ReservationGateway } from './reservations.gateway';
         DatabaseModule,
         DatabaseModule.forFeature([Reservation]),
         LoggerModule,
+        ConfigModule,
         ClientsModule.registerAsync([
             {
                 name: AUTH_SERVICE,
@@ -26,6 +27,18 @@ import { ReservationGateway } from './reservations.gateway';
                     options: {
                         host: configService.get('AUTH_HOST'),
                         port: configService.get('AUTH_PORT')
+                    }
+                }),
+                inject: [ConfigService],
+                imports: [ConfigModule]
+            },
+            {
+                name: NOTIFICATIONS_SERVICE,
+                useFactory: (configService: ConfigService) => ({
+                    transport: Transport.TCP,
+                    options: {
+                        host: configService.get('NOTIFICATIONS_HOST'),
+                        port: configService.get('NOTIFICATIONS_PORT')
                     }
                 }),
                 inject: [ConfigService],
