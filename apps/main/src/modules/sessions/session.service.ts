@@ -27,7 +27,11 @@ export class SessionService {
         const hall = await this.hallService.findOne({ id: createSessionDto.hall }, ['hallSeats']);
         const movie = await this.movieService.findOne(createSessionDto.movie);
         if (hall.cinema.name !== cinema.name) {
-            throw new Error('No such hall in cinema');
+            throw new BadRequestException('No such hall in cinema');
+        }
+
+        if (new Date(movie.releaseDate) > new Date(createSessionDto.date)) {
+            throw new BadRequestException('Cannot set session before movie is released!');
         }
 
         const startTime = moment(

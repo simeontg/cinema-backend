@@ -5,7 +5,7 @@ import { UserResponseDto } from './dto/user-response.dto';
 import { UsersMapper } from './users.mapper';
 import { CurrentUser } from '@app/common';
 
-@Controller('users')
+@Controller('auth/users')
 export class UsersController {
     constructor(private readonly usersMapper: UsersMapper) {}
 

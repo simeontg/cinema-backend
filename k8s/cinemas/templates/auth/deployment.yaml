@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: auth
+  name: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - image: europe-west3-docker.pkg.dev/cinema-435220/auth/prod
+        name: auth
+        env:
+          - name: AUTH_TCP_PORT
+            value: '3005'
+          - name: AUTH_HTTP_PORT
+            value: '3002'
+          - name: MIGRATIONS_HOST
+            valueFrom:
+              secretKeyRef:
+                name: migrationhost
+                key: migrationhost
+          - name: MIGRATIONS_PORT
+            value: '5432'
+          - name: POSTGRES_DB
+            value: cinemas
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: postgreshost
+                key: postgreshost
+          - name: POSTGRES_PORT
+            valueFrom:
+              secretKeyRef:
+                name: postgresport
+                key: postgresport
+          - name: POSTGRES_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: postgresuser
+                key: postgresuser
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgrespassword
+                key: postgrespassword
+          - name: GOOGLE_CLIENT_ID
+            value: 78555681220-lr90tvc9ght7go5oi11c3udf1rt9f0gk.apps.googleusercontent.com
+          - name: GOOGLE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: googleclientsecret
+                key: googleclientsecret
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: jwtsecret
+                key: jwtsecret
+          - name: JWT_EXPIRATION
+            valueFrom:
+              secretKeyRef:
+                name: jwtexpiration
+                key: jwtexpiration
+          - name: CLIENT_APP_URL
+            value: http://d2ttgz589n2jjm.cloudfront.net
+          - name: GOOGLE_CALLBACK_URL
+            value: http://34.49.132.34.nip.io/auth/google/callback
+        ports:
+        - containerPort: 3002
+        - containerPort: 3005

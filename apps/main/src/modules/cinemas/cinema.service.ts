@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Cinema } from './entities/cinema.entity';
 import { CreateCinemaDto } from './dto/create-cinema.dto';
 import { CityService } from '../city/city.service';
@@ -20,6 +20,17 @@ export class CinemaService {
         if (!city) {
             city = await this.cityService.create(createCinemaDto.city);
         }
+
+        const duplicateCinema = await this.cinemasRepository.findOne({
+            name: createCinemaDto.name,
+            city: { id: city.id }
+        });
+        if (duplicateCinema) {
+            throw new ConflictException(
+                `Cinema ${createCinemaDto.name} already exists in ${city.name}`
+            );
+        }
+
         const cinema = new Cinema({ name: createCinemaDto.name, city });
         return this.cinemasRepository.create(cinema);
     }

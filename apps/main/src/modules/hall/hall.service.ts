@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateHallDto } from './dto/create-hall.dto';
 import { CinemaService } from '../cinemas/cinema.service';
 import { Hall } from './entities/hall.entity';
@@ -23,6 +23,18 @@ export class HallService {
     @Transactional()
     async create(createHallDto: CreateHallDto) {
         const cinema = await this.cinemaService.findOne({ id: createHallDto.cinemaId });
+
+        const duplicatedHall = await this.hallsRepository.findOne({
+            hall_name: createHallDto.hallName,
+            cinema: { id: cinema.id }
+        });
+
+        if (duplicatedHall) {
+            throw new ConflictException(
+                `${createHallDto.hallName} already exists in ${cinema.name}`
+            );
+        }
+
         const hall = new Hall({
             hall_name: createHallDto.hallName,
             cinema
@@ -60,6 +72,17 @@ export class HallService {
     @Transactional()
     async update(id: string, updateHallDto: UpdateHallDto) {
         const cinema = await this.cinemaService.findOne({ id: updateHallDto.cinemaId });
+
+        const duplicatedHall = await this.hallsRepository.findOne({
+            hall_name: updateHallDto.hallName,
+            cinema: { id: cinema.id }
+        });
+        if (duplicatedHall) {
+            throw new ConflictException(
+                `${updateHallDto.hallName} already exists in ${cinema.name}`
+            );
+        }
+
         const hall = await this.hallsRepository.findOne({ id: id }, ['sessions']);
 
         if (hall.sessions.some((session) => new Date(session.date) > new Date())) {
@@ -134,7 +157,7 @@ export class HallService {
 
                     let sessionHallSeat = null;
                     let reserved = false;
-                    
+
                     if (sessionId) {
                         const reservedSeat = await this.reservationHallSeatService.findOne({
                             hallSeat: { id: hallSeat.id },

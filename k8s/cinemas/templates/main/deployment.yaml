@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: main
+  name: main
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: main
+  template:
+    metadata:
+      labels:
+        app: main
+    spec:
+      containers:
+      - image: europe-west3-docker.pkg.dev/cinema-435220/main/production
+        name: main
+        ports: 
+        - containerPort: 3001
+        env:
+          - name: MIGRATIONS_HOST
+            valueFrom:
+              secretKeyRef:
+                name: migrationhost
+                key: migrationhost
+          - name: MIGRATIONS_PORT
+            value: '5432'
+          - name: POSTGRES_DB
+            value: cinemas
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: postgreshost
+                key: postgreshost
+          - name: POSTGRES_PORT
+            valueFrom:
+              secretKeyRef:
+                name: postgresport
+                key: postgresport
+          - name: POSTGRES_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: postgresuser
+                key: postgresuser
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgrespassword
+                key: postgrespassword
+          - name: AWS_REGION
+            value: eu-central-1
+          - name: AWS_BUCKET
+            value: moviereservations
+          - name: AWS_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: awsaccesskey
+                key: awsaccesskey
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: awssecretaccesskey
+                key: awssecretaccesskey
+          - name: AUTH_HOST
+            value: auth-tcp
+          - name: AUTH_PORT
+            value: '3005'
+          - name: NOTIFICATIONS_HOST
+            value: notifications
+          - name: NOTIFICATIONS_PORT
+            value: '3004'
+          - name: CLIENT_APP_URL
+            value: http://d2ttgz589n2jjm.cloudfront.net

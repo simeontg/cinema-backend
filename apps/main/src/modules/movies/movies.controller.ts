@@ -26,7 +26,7 @@ import { JwtAuthGuard } from '@app/common';
 import { AdminGuard } from '@app/common/guards/AdminGuard';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 
-@Controller('movies')
+@Controller('main/movies')
 export class MoviesController extends BaseController {
     constructor(private readonly moviesService: MoviesService) {
         super();

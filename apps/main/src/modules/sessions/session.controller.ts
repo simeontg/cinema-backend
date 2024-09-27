@@ -5,7 +5,7 @@ import { JwtAuthGuard } from '@app/common';
 import { AdminGuard } from '@app/common/guards/AdminGuard';
 import { UpdateSessionDto } from './dto/update-session.dto';
 
-@Controller('session')
+@Controller('main/session')
 export class SessionController {
     constructor(private readonly sessionService: SessionService) {}
 
