@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Transactional } from 'typeorm-transactional';
 import { ExtendedReservationDto } from './dto/extended-reservation.dto';
 import { Reservation } from './entities/reservation.entity';
@@ -13,6 +13,10 @@ import { Queue } from 'bull';
 import { FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { ReservationHallSeatService } from './reservationHallSeat/reservationHallSeat.service';
 import { ReservationGateway } from './reservations.gateway';
+import { NOTIFICATIONS_SERVICE } from '@app/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { UserDto } from '@app/common/dto/user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ReservationService {
@@ -22,7 +26,9 @@ export class ReservationService {
         private readonly reservationRepository: ReservationRepository,
         private readonly reservationHallSeatService: ReservationHallSeatService,
         private readonly reservationGateway: ReservationGateway,
-        @InjectQueue('reservation') private reservationQueue: Queue
+        private readonly configService: ConfigService,
+        @InjectQueue('reservation') private reservationQueue: Queue,
+        @Inject(NOTIFICATIONS_SERVICE) private readonly notificationsService: ClientProxy
     ) {}
 
     @Transactional()
@@ -42,8 +48,8 @@ export class ReservationService {
 
         if (existingReservation) {
             return existingReservation;
-        } 
-        
+        }
+
         const now = new Date();
         const reservation = new Reservation({
             total_price: extendedReservationDto.total_price,
@@ -60,16 +66,18 @@ export class ReservationService {
     }
 
     @Transactional()
-    async update(id: string, updateReservationDto: UpdateReservationDto) {
+    async update(user: UserDto, reservationId: string, updateReservationDto: UpdateReservationDto) {
         const status = await this.reservationStatusService.findOne({
             status: ReservationStatuses.Confirmed
         });
 
         const updatedReservation = await this.reservationRepository.findOneAndUpdate(
-            { id },
+            { id: reservationId },
             { total_price: updateReservationDto.total_price, reservation_status: status },
-            ['session']
+            ['session', 'session.movie', 'session.hall', 'session.cinema']
         );
+
+        const hallSeatLocations = []
 
         for (let hallSeat of updateReservationDto.hallSeats) {
             await this.reservationHallSeatService.create({
@@ -78,8 +86,19 @@ export class ReservationService {
                 session: updatedReservation.session,
                 location: hallSeat.location
             });
+
+            hallSeatLocations.push(hallSeat.location);
         }
         this.reservationGateway.emitReservation(updatedReservation.session.id);
+
+        const emailData = this.generateEmailContent(user, updatedReservation, hallSeatLocations);
+
+        this.notificationsService.emit('notify_email', {
+            email: user.email,
+            text: emailData.text,
+            html: emailData.html,
+            subject: 'Movie Reservation Success'
+        });
         return updatedReservation;
     }
 
@@ -114,5 +133,56 @@ export class ReservationService {
         if (reservation.reservation_status.status === ReservationStatuses.Pending) {
             await this.reservationRepository.findOneAndDelete({ id });
         }
+    }
+
+
+    private generateEmailContent(user: UserDto, updatedReservation: Reservation, hallSeatLocations: string[]) {
+        const clientAppUrl = this.configService.get('CLIENT_APP_URL');
+        const reservationUrl = `${clientAppUrl}/profile`;
+
+        const emailText = `
+        Dear ${user.profile.firstName},
+        Your reservation was successful!
+        Total price: $${updatedReservation.total_price}
+        `;
+
+        const emailHtml = `<div style="background-color: #f9f9f9; padding: 20px; font-family: Arial, sans-serif; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                <div style="background-color: #6e3996; padding: 20px; text-align: center; color: #fff;">
+                    <h2 style="margin: 0;">🎉 Reservation made for ${updatedReservation.session.movie.title} 🎉</h2>
+                </div>
+                <div style="padding: 20px;">
+                    <p style="font-size: 16px; color: #333;">Dear ${user.profile.firstName},</p>
+                    <p style="font-size: 16px; color: #333;">
+                        We're excited to inform you that your reservation has been made successfully!
+                    </p>
+                    <p style="font-size: 16px; color: #333;">
+                        <strong>Date:</strong> <span style="color: #6e3996; font-size: 18px;">${updatedReservation.session.date}</span>
+                    </p>
+                    <p style="font-size: 16px; color: #333;">
+                        <strong>Start time:</strong> <span style="color: #6e3996; font-size: 18px;">${updatedReservation.session.startTime}</span>
+                    </p>
+                    <p style="font-size: 16px; color: #333;">
+                        <strong>Venue:</strong> <span style="color: #6e3996; font-size: 18px;">${updatedReservation.session.cinema.name}, ${updatedReservation.session.hall.hall_name}</span>
+                    </p>
+                    <p style="font-size: 16px; color: #333;">
+                        <strong>Total Price:</strong> <span style="color: #6e3996; font-size: 18px;">$${updatedReservation.total_price}</span>
+                    </p>
+                    <p style="font-size: 16px; color: #333;">
+                        <strong>Seats reserved:</strong> <span style="color: #6e3996; font-size: 18px;">${hallSeatLocations.join(',')}</span>
+                    </p>
+                    <p style="font-size: 16px; color: #333;">We hope you enjoy your movie experience!</p>.
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${reservationUrl}" target="_blank" rel="noopener noreferrer" style="padding: 12px 20px; background-color: #6e3996; color: white; text-decoration: none; font-size: 16px; border-radius: 5px;">View Your Reservations</a>
+                    </div>
+                </div>
+                <div style="background-color: #f1f1f1; padding: 20px; text-align: center; font-size: 12px; color: #777;">
+                    <p>If you did not make this reservation, please ignore this email.</p>
+                    <p>© 2024 Simeon Cinemas. All rights reserved.</p>
+                </div>
+            </div>
+        </div>`;
+
+        return { text: emailText, html: emailHtml };
     }
 }

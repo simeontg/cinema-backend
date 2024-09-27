@@ -6,7 +6,7 @@ import { UserDto } from '@app/common/dto/user.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { GetReservationParamDto } from './dto/get-reservations-param.dto';
 
-@Controller('reservation')
+@Controller('main/reservation')
 export class ReservationController {
     constructor(private reservationService: ReservationService) {}
 
@@ -25,12 +25,13 @@ export class ReservationController {
         @CurrentUser() user: UserDto,
         @Query() { expired }: GetReservationParamDto
     ) {
+        console.log(user)
         return this.reservationService.getUserReservations(user.profile.id, expired);
     }
 
     @UseGuards(JwtAuthGuard)
     @Put(':id')
-    async update(@Param('id') id: string, @Body() updateReservationDto: UpdateReservationDto) {
-        return this.reservationService.update(id, updateReservationDto);
+    async update(@CurrentUser() user: UserDto, @Param('id') id: string, @Body() updateReservationDto: UpdateReservationDto) {
+        return this.reservationService.update(user, id, updateReservationDto);
     }
 }
