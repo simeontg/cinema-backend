@@ -7,7 +7,7 @@ import { plainToInstance } from 'class-transformer';
 import { AdminGuard } from '@app/common/guards/AdminGuard';
 import { UpdateHallDto } from './dto/update-hall.dto';
 
-@Controller('hall')
+@Controller('main/hall')
 export class HallController {
     constructor(private readonly hallService: HallService) {}
 

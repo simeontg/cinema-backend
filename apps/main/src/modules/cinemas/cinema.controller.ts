@@ -5,7 +5,7 @@ import { JwtAuthGuard } from '@app/common';
 import { AdminGuard } from '@app/common/guards/AdminGuard';
 import { UpdateCinemaDto } from './dto/update-cinema.dto';
 
-@Controller('cinema')
+@Controller('main/cinema')
 export class CinemaController {
     constructor(private readonly cinemaService: CinemaService) {}
 

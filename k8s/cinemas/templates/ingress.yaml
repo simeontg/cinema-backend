@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cinemas
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /main/*
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: main
+                port:
+                  number: 3001
+          - path: /auth/*
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: auth-http
+                port:
+                  number: 3002
+          - path: /reservation
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: main
+                port:
+                  number: 3001
